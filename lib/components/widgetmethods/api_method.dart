@@ -4,22 +4,21 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../config.dart';
 
 class ApiService {
-   Future<Map<String, dynamic>> request({
+  Future<Map<String, dynamic>> request({
     required String method,
     required String endpoint,
     Map<String, dynamic>? body,
     bool tokenRequired = false,
+    bool isMultipart = false, // New flag for multipart requests
   }) async {
     if (tokenRequired) {
       final token = await _getToken();
       if (token == null) {
-        return {
-          'message': 'Token is required but not found.',
-        };
+        return {'message': 'Token is required but not found.'};
       }
-      return _sendRequestWithToken(method, endpoint, body, token);
+      return _sendRequestWithToken(method, endpoint, body, token, isMultipart);
     } else {
-      return _sendRequestWithoutToken(method, endpoint, body);
+      return _sendRequestWithoutToken(method, endpoint, body, isMultipart);
     }
   }
 
@@ -35,79 +34,71 @@ class ApiService {
     };
   }
 
-  static Future<Map<String, dynamic>> _sendRequestWithToken(String method,
-      String endpoint, Map<String, dynamic>? body, String token) async {
+  static Future<Map<String, dynamic>> _sendRequestWithToken(
+      String method, String endpoint, Map<String, dynamic>? body, String token, bool isMultipart) async {
     try {
       final uri = Uri.parse('${Config.apiUrl}$endpoint');
-      print(uri);
-
       final headers = _getHeaders(token);
-      final requestBody = body != null ? json.encode(body) : null;
-      return await _sendRequest(method, uri, headers, requestBody);
+      return await _sendRequest(method, uri, headers, body, isMultipart);
     } catch (e) {
-      return {
-        'statusCode': 500,
-        'message': 'An error occurred while making the request: $e',
-      };
+      return {'statusCode': 500, 'message': 'Error: $e'};
     }
   }
 
-  static Future<Map<String, dynamic>> _sendRequestWithoutToken(String method,
-      String endpoint, Map<String, dynamic>? body) async {
+  static Future<Map<String, dynamic>> _sendRequestWithoutToken(
+      String method, String endpoint, Map<String, dynamic>? body, bool isMultipart) async {
     try {
       final uri = Uri.parse('${Config.apiUrl}$endpoint');
-      final headers = {
-        'Content-Type': 'application/json',
-      };
-      final requestBody = body != null ? json.encode(body) : null;
-      return await _sendRequest(method, uri, headers, requestBody);
+      final headers = {'Content-Type': 'application/json'};
+      return await _sendRequest(method, uri, headers, body, isMultipart);
     } catch (e) {
-      return {
-        'statusCode': 500,
-        'message': 'An error occurred while making the request: $e',
-      };
+      return {'statusCode': 500, 'message': 'Error: $e'};
     }
   }
 
-  static Future<Map<String, dynamic>> _sendRequest(String method, Uri uri,
-      Map<String, String> headers, String? body) async {
+  static Future<Map<String, dynamic>> _sendRequest(
+      String method, Uri uri, Map<String, String> headers, Map<String, dynamic>? body, bool isMultipart) async {
     try {
-
       http.Response response;
 
-      switch (method.toLowerCase()) {
-        case 'get':
-          response = await http.get(uri, headers: headers);
-          break;
-        case 'post':
-          response = await http.post(uri, headers: headers, body: body);
-          break;
-        case 'put':
-          response = await http.put(uri, headers: headers, body: body);
-          break;
-        case 'delete':
-          response = await http.delete(uri, headers: headers, body: body);
-          break;
-        default:
-          return {
-            'statusCode': 400,
-            'message': 'Invalid HTTP method.',
-          };
+      if (isMultipart) {
+        var request = http.MultipartRequest(method.toUpperCase(), uri);
+        request.headers.addAll(headers);
+
+        if (body != null) {
+          body.forEach((key, value) {
+            request.fields[key] = value.toString();
+          });
+        }
+
+        var streamedResponse = await request.send();
+        response = await http.Response.fromStream(streamedResponse);
+      } else {
+        final requestBody = body != null ? json.encode(body) : null;
+        switch (method.toLowerCase()) {
+          case 'get':
+            response = await http.get(uri, headers: headers);
+            break;
+          case 'post':
+            response = await http.post(uri, headers: headers, body: requestBody);
+            break;
+          case 'put':
+            response = await http.put(uri, headers: headers, body: requestBody);
+            break;
+          case 'delete':
+            response = await http.delete(uri, headers: headers, body: requestBody);
+            break;
+          default:
+            return {'statusCode': 400, 'message': 'Invalid HTTP method.'};
+        }
       }
 
       print('Response status code: ${response.statusCode}');
       print('Response body: ${response.body}');
 
-      if (response.statusCode == 200) {
-        return json.decode(response.body);
-      }  else {
-        return json.decode(response.body);
-      }
+      return json.decode(response.body);
     } catch (e) {
-      return {
-        'statusCode': 500,
-        'message': 'Check Your API',
-      };
+      return {'statusCode': 500, 'message': 'Check Your API: $e'};
     }
   }
 }

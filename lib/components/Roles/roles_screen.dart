@@ -464,7 +464,7 @@ class _RolesPageState extends State<RolesPage> {
   Future<void> _addRole(String roleName) async {
     final response = await new ApiService().request(
       method: 'post',
-      endpoint: 'Roles/SaveRole',
+      endpoint: 'Roles/AddEditRole',
       body: {
         'roleName': roleName,
       },
@@ -557,7 +557,7 @@ class _RolesPageState extends State<RolesPage> {
   Future<void> _updateRole(int roleId, String roleName) async {
     final response = await new ApiService().request(
       method: 'post',
-      endpoint: 'Roles/SaveRole',
+      endpoint: 'Roles/AddEditRole',
       body: {
         'roleId': roleId,
         'roleName': roleName,
@@ -649,7 +649,7 @@ class _RolesPageState extends State<RolesPage> {
                     children: roles.map((role) {
                       Map<String, dynamic> roleFields = {
                         'RoleName': role['roleName'],
-                        'RoleStatus': role['roleStatus'],
+                        '': role[''],
                         'CreatedAt': role['createdAt'],
                         'UpdatedAt': role['updatedAt'],
                       };
@@ -659,10 +659,17 @@ class _RolesPageState extends State<RolesPage> {
                         onEdit: () => _showEditRoleModal(role['roleId'], role['roleName']),
                         onDelete: () => _confirmDeleteRole(role['roleId']),
                         showDelete: true,
-                        showEdit: true
+                        showEdit: true,
+                        trailingIcon:
+                            Icon(
+                              role['roleStatus'] ? Icons.check_circle : Icons.cancel,
+                              color: role['roleStatus'] ? Colors.green : Colors.red,
+                            ),
+
                       );
                     }).toList(),
-                  ),
+                  )
+
               ],
             ),
           ),
