@@ -92,13 +92,17 @@ class ApiService {
             return {'statusCode': 400, 'message': 'Invalid HTTP method.'};
         }
       }
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
 
-      print('Response status code: ${response.statusCode}');
-      print('Response body: ${response.body}');
-
-      return json.decode(response.body);
+      } else {
+        return json.decode(response.body);
+      }
     } catch (e) {
-      return {'statusCode': 500, 'message': 'Check Your API: $e'};
+      return {
+        'statusCode': 500,
+        'message': 'Check Your API',
+      };
     }
   }
-}
+  }

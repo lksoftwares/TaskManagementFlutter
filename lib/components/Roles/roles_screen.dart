@@ -633,7 +633,7 @@ class _RolesPageState extends State<RolesPage> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     IconButton(
-                    icon: Icon(Icons.add, color: Colors.blue, size: 30),
+                    icon: Icon(Icons.add_circle, color: Colors.blue, size: 30),
                     onPressed: _showAddRoleModal,
                   ),
                   ],
@@ -650,6 +650,7 @@ class _RolesPageState extends State<RolesPage> {
                       Map<String, dynamic> roleFields = {
                         'RoleName': role['roleName'],
                         '': role[''],
+                        'Status': role['roleStatus'],
                         'CreatedAt': role['createdAt'],
                         'UpdatedAt': role['updatedAt'],
                       };
@@ -658,14 +659,17 @@ class _RolesPageState extends State<RolesPage> {
                         userFields: roleFields,
                         onEdit: () => _showEditRoleModal(role['roleId'], role['roleName']),
                         onDelete: () => _confirmDeleteRole(role['roleId']),
-                        showDelete: true,
-                        showEdit: true,
                         trailingIcon:
-                            Icon(
-                              role['roleStatus'] ? Icons.check_circle : Icons.cancel,
-                              color: role['roleStatus'] ? Colors.green : Colors.red,
-                            ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            IconButton(onPressed: ()=>_showEditRoleModal(role['roleId'], role['roleName']),
+                                icon: Icon(Icons.edit,color: Colors.green,)),
+                            IconButton(onPressed: ()=>_confirmDeleteRole(role['roleId']),
+                                icon: Icon(Icons.delete,color: Colors.red,)),
 
+                          ],
+                        ),
                       );
                     }).toList(),
                   )

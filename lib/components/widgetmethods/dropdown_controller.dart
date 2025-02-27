@@ -81,13 +81,14 @@
 // }
 import 'package:flutter/material.dart';
 
-class CustomDropdown<T extends Object> extends StatelessWidget {
+class CustomDropdown<T extends Object> extends StatefulWidget {
   final List<T> options;
   final T? selectedOption;
   final String Function(T) displayValue;
   final void Function(T?) onChanged;
   final String labelText;
   final Icon? prefixIcon;
+  final double? width;
 
   const CustomDropdown({
     Key? key,
@@ -97,36 +98,142 @@ class CustomDropdown<T extends Object> extends StatelessWidget {
     required this.onChanged,
     required this.labelText,
     this.prefixIcon,
+    this.width,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return Autocomplete<T>(
-      optionsBuilder: (TextEditingValue textEditingValue) {
-        return options
-            .where((option) =>
-            displayValue(option)
-                .toLowerCase()
-                .contains(textEditingValue.text.toLowerCase()))
-            .toList();
-      },
-      onSelected: (selectedOption) {
-        onChanged(selectedOption);
-      },
-      fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
-        return TextFormField(
-          controller: controller,
-          focusNode: focusNode,
-          onEditingComplete: onEditingComplete,
-          decoration: InputDecoration(
-            labelText: labelText,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
+  _CustomDropdownState<T> createState() => _CustomDropdownState<T>();
+}
+
+class _CustomDropdownState<T extends Object> extends State<CustomDropdown<T>> {
+  final TextEditingController _controller = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
+  OverlayEntry? _overlayEntry;
+  final LayerLink _layerLink = LayerLink();
+  List<T> _filteredOptions = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.text = widget.selectedOption != null ? widget.displayValue(widget.selectedOption!) : '';
+    _focusNode.addListener(_onFocusChange);
+  }
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(_onFocusChange);
+    _focusNode.dispose();
+    _controller.dispose();
+    _overlayEntry?.remove();
+    super.dispose();
+  }
+
+  void _onFocusChange() {
+    if (_focusNode.hasFocus) {
+      _showOverlay();
+    } else {
+      _hideOverlay();
+    }
+  }
+
+  void _showOverlay() {
+    _filteredOptions = widget.options;
+    _overlayEntry = _createOverlayEntry();
+    Overlay.of(context).insert(_overlayEntry!);
+  }
+
+  void _hideOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
+  OverlayEntry _createOverlayEntry() {
+    RenderBox renderBox = context.findRenderObject() as RenderBox;
+    var size = renderBox.size;
+    var offset = renderBox.localToGlobal(Offset.zero);
+
+    return OverlayEntry(
+      builder: (context) => Positioned(
+        left: offset.dx,
+        top: offset.dy + size.height + 5,
+        width: widget.width ?? size.width,
+        child: CompositedTransformFollower(
+          link: _layerLink,
+          showWhenUnlinked: false,
+          offset: Offset(0.0, size.height + 5.0),
+          child: Material(
+            elevation: 4.0,
+            child: Container(
+              height: 250,
+              child: ListView.builder(
+                padding: EdgeInsets.zero,
+                shrinkWrap: true,
+                itemCount: _filteredOptions.length,
+                itemBuilder: (context, index) {
+                  final option = _filteredOptions[index];
+                  return InkWell(
+                    onTap: () {
+                      widget.onChanged(option);
+                      _controller.text = widget.displayValue(option);
+                      _focusNode.unfocus();
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(widget.displayValue(option)),
+                    ),
+                  );
+                },
+              ),
             ),
-            prefixIcon: prefixIcon,
           ),
-        );
-      },
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CompositedTransformTarget(
+      link: _layerLink,
+      child: GestureDetector(
+        onTap: () {
+          if (!_focusNode.hasFocus) {
+            FocusScope.of(context).requestFocus(_focusNode);
+          }
+        },
+        child: Container(
+          width: widget.width,
+          child: TextFormField(
+            controller: _controller,
+            focusNode: _focusNode,
+            decoration: InputDecoration(
+              labelText: widget.labelText,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              prefixIcon: widget.prefixIcon,
+            ),
+            onChanged: (value) {
+              setState(() {
+                _filteredOptions = widget.options
+                    .where((option) =>
+                    widget.displayValue(option).toLowerCase().contains(value.toLowerCase()))
+                    .toList();
+
+                if (value.isEmpty) {
+                  widget.onChanged(null);
+                }
+
+                if (_filteredOptions.isEmpty) {
+                  _hideOverlay();
+                } else if (_overlayEntry == null && _focusNode.hasFocus) {
+                  _showOverlay();
+                }
+              });
+            },
+          ),
+        ),
+      ),
     );
   }
 }

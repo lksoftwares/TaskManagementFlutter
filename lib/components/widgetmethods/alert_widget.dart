@@ -295,6 +295,7 @@
 // }
 
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 Future<void> showCustomAlertDialog(
@@ -305,64 +306,69 @@ Future<void> showCustomAlertDialog(
       InputDecoration? inputDecoration,
       double titleFontSize = 25.0,
       FontWeight titleFontWeight = FontWeight.bold,
+      Color titleColor = Colors.white,
+      Widget? additionalTitleContent,
     }) async {
   return showDialog(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Align(
-          alignment: Alignment.center,
-          child: Text(
-            title,
-            style: TextStyle(
-              fontSize: titleFontSize,
-              fontWeight: titleFontWeight,
-            ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+            bottomLeft: Radius.circular(20),
+            bottomRight: Radius.circular(20),
           ),
+        ),
+        backgroundColor: Colors.white,
+        titlePadding: EdgeInsets.all(0),
+        title: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Container(
+              height: 102,
+              decoration: BoxDecoration(
+                color: Colors.blue,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+              ),
+              padding: EdgeInsets.all(15),
+              child: Align(
+                alignment: Alignment.center,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        color: titleColor,
+                        fontWeight: titleFontWeight,
+                        fontSize: titleFontSize,
+                      ),
+                    ),
+                    if (additionalTitleContent != null) additionalTitleContent,
+                  ],
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: 60,
+              left: 240,
+              child: IconButton(
+                icon: Icon(Icons.close, color: Colors.red),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ),
+          ],
         ),
         content: content,
         actions: actions,
       );
     },
   );
-}
-
-void showMyCustomDialog(BuildContext context) {
-  showCustomAlertDialog(
-    context,
-    title: "Are you sure?",
-    content: Text("Do you want to proceed?"),
-    actions: [
-      TextButton(
-        onPressed: () {
-          Navigator.pop(context);
-        },
-        child: Text("Cancel"),
-      ),
-      TextButton(
-        onPressed: () {
-          print("User clicked Yes!");
-        },
-        child: Text("Yes"),
-      ),
-    ],
-  );
-}
-
-
-
-class shreya extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Custom Alert Dialog Example")),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () => showMyCustomDialog(context),
-          child: Text("Show Dialog"),
-        ),
-      ),
-
-    );
-  }
 }

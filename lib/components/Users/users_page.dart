@@ -115,15 +115,18 @@ class _ShreyaPageState extends State<ShreyaPage> {
 
     showCustomAlertDialog(
       context,
+
       title: userId == null ? 'Add User' : 'Edit User',
       content: Container(
-        height: 180,
+        height: 200,
         child: Column(
-
           children: [
-            TextField(controller: nameController, decoration: InputDecoration(labelText: 'User Name')),
-            TextField(controller: emailController, decoration: InputDecoration(labelText: 'Email')),
-            TextField(controller: passwordController, decoration: InputDecoration(labelText: 'Password')),
+            TextField(controller: nameController,  decoration: InputDecoration(labelText: 'Username',border: OutlineInputBorder())),
+            SizedBox(height: 15,),
+            TextField(controller: emailController, decoration: InputDecoration(labelText: 'Email',border: OutlineInputBorder())),
+            SizedBox(height: 15,),
+
+            TextField(controller: passwordController, decoration: InputDecoration(labelText: 'Password',border: OutlineInputBorder())),
           ],
         ),
       ),
@@ -146,7 +149,42 @@ class _ShreyaPageState extends State<ShreyaPage> {
       ],
     );
   }
+  void _confirmDeleteRole(int userId) {
+    showCustomAlertDialog(
+      context,
+      title: 'Delete User',
+      content: Text('Are you sure you want to delete this user?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            _deleteUser(userId);
+            Navigator.pop(context);
+          },
+          child: Text('Delete'),
+        ),
+      ],
+    );
+  }
 
+  Future<void> _deleteUser(int userId) async {
+
+    final response = await new ApiService().request(
+      method: 'delete',
+      endpoint: 'User/DeleteUser/$userId',
+    );
+    if (response['statusCode'] == 200) {
+      String message = response['message'] ?? 'User deleted successfully';
+      showToast(msg: message, backgroundColor: Colors.green);
+      fetchUsers();
+    } else {
+      String message = response['message'] ?? 'Failed to delete User';
+      showToast(msg: message);
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -166,7 +204,7 @@ class _ShreyaPageState extends State<ShreyaPage> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     IconButton(
-                      icon: Icon(Icons.add, color: Colors.blue, size: 30),
+                      icon: Icon(Icons.add_circle, color: Colors.blue, size: 30),
                       onPressed: () => _showUserForm(),
                     ),
                   ],
@@ -181,29 +219,42 @@ class _ShreyaPageState extends State<ShreyaPage> {
                   Column(
                     children: users.map((user) {
                       Map<String, dynamic> roleFields = {
-                        'userName': user['userName'],
-                        '': user['userEmail'],
-                        'userPassword': user['userPassword'],
-                        'createdAt': user['createdAt'],
-                        'updatedAt': user['updatedAt'],
+                        'User Name': user['userName'],
+                        '':  user[''],
+                        'User Status': user['userStatus'] ?? false,
+
+                        'userEmail': user['userEmail'],
+                        'Password: ': user['userPassword'],
+                        'CreatedAt': user['createdAt'],
 
                       };
 
                       return buildUserCard(
                         userFields: roleFields,
-                        onEdit: () => _showUserForm(
-                          userId: user['userId'],
-                          userName: user['userName'],
-                          userEmail: user['userEmail'],
-                          userPassword: user['userPassword'],
-                        ),                        // onDelete: () => _confirmDeleteRole(user['roleId']),
-                        showDelete: true,
-                        showEdit: true,
-                        trailingIcon: Icon(
-                          (user['userStatus'] ?? false) ? Icons.check_circle : Icons.cancel,
-                          color: (user['userStatus'] ?? false) ? Colors.green : Colors.red,
-                        ),
+                        // onEdit: () => _showUserForm(
+                        //   userId: user['userId'],
+                        //   userName: user['userName'],
+                        //   userEmail: user['userEmail'],
+                        //   userPassword: user['userPassword'],
+                        // ),
 
+                        trailingIcon:
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            IconButton(onPressed: ()=>_showUserForm(
+                              userId: user['userId'],
+                              userName: user['userName'],
+                              userEmail: user['userEmail'],
+                              userPassword: user['userPassword'],
+                            ),
+                                icon: Icon(Icons.edit,color: Colors.green,)),
+                            IconButton(onPressed: ()=>_confirmDeleteRole(user['userId']),
+                                icon: Icon(Icons.delete,color: Colors.red,)),
+
+                          ],
+                        ),
                       );
                     }).toList(),
                   )

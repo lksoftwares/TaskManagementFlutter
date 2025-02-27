@@ -1114,6 +1114,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:taskmanagement/components/widgetmethods/card_widget.dart';
+import 'package:taskmanagement/components/widgetmethods/dropdown_controller.dart';
 import '../widgetmethods/alert_widget.dart';
 import '../widgetmethods/api_method.dart';
 import '../widgetmethods/appbar_method.dart';
@@ -1121,7 +1122,6 @@ import '../widgetmethods/datagrid_class.dart';
 import '../widgetmethods/logout _method.dart';
 import '../widgetmethods/no_data_found.dart';
 import '../widgetmethods/toast_method.dart';
-import '../widgetmethods/dates_method.dart';
 
 class DailyWorkingStatus extends StatefulWidget {
   const DailyWorkingStatus({super.key});
@@ -1138,6 +1138,8 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
   bool isLoading = false;
   DateTime? fromDate;
   DateTime? toDate;
+  String? selectedUserName;
+  Map<String, dynamic>? selectedUser;
 
   List<ColumnConfig> getColumnsConfig() {
     return [
@@ -1199,7 +1201,7 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
 
     final response = await new ApiService().request(
       method: 'get',
-      endpoint: 'WorkingStatus/GetWorkingStatus',
+      endpoint: 'Working/GetWorkingStatus',
     );
     print('Response: $response');
     if (response['statusCode'] == 200 && response['apiResponse'] != null) {
@@ -1245,19 +1247,6 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
     }
   }
 
-
-  List<Map<String, dynamic>> getFilteredData() {
-    if (fromDate != null && toDate != null) {
-      return roles.where((role) {
-        DateTime workingDate = _parseDate(role['workingDate']);
-        return (workingDate.isAtSameMomentAs(fromDate!) ||
-            workingDate.isAfter(fromDate!)) &&
-            (workingDate.isAtSameMomentAs(toDate!) ||
-                workingDate.isBefore(toDate!));
-      }).toList();
-    }
-    return roles;
-  }
 
 
   void _showAddWorkingModal() {
@@ -1340,6 +1329,10 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
         backgroundColor: Colors.green,
       );
       Navigator.pop(context);
+
+      setState(() {
+        selectedUserId = null;
+      });
     } else {
       showToast(
         msg: response['message'] ?? 'Failed to add Working Desc',
@@ -1347,11 +1340,12 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
     }
   }
 
+
   void _showDatePicker() {
     showDateRangePicker(
       context: context,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      firstDate: DateTime(2025,DateTime.february),
+      lastDate: DateTime(2025,DateTime.march),
       initialDateRange: fromDate != null && toDate != null
           ? DateTimeRange(start: fromDate!, end: toDate!)
           : null,
@@ -1366,27 +1360,6 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
   }
 
 
-  void _showFullDescription(String workingDesc) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Working Description'),
-          content: SingleChildScrollView(
-            child: Text(workingDesc),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('Close'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   void _confirmDeleteRole(int txnId) {
     showCustomAlertDialog(
@@ -1426,30 +1399,135 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
       );
     }
   }
-  void _showWorkingNoteDialog(String? workingNote) {
+  void _showFullDescription(String workingDesc, String workingDate, String userName, BuildContext context) {
+    DateTime parsedDate = DateFormat('dd-MM-yyyy').parse(workingDate);
+    String formattedWorkingDate = DateFormat('dd-MM-yyyy').format(parsedDate);
+
+    showCustomAlertDialog(
+      context,
+      title: 'Working Description',
+
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            height: 250,
+            constraints: BoxConstraints(
+              maxHeight: 500,
+            ),
+            child: SingleChildScrollView(
+              child: Text(
+                "Description: $workingDesc",
+                style: TextStyle(fontSize: 18),
+              ),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Text('Close'),
+        ),
+      ],
+      titleFontSize: 27.0,
+      additionalTitleContent: Padding(
+        padding: const EdgeInsets.only(top: 1.0),
+        child: Column(
+          children: [
+            Divider(),
+            Text(
+              "User: $userName               Date: $formattedWorkingDate",
+              style: TextStyle(
+                fontSize: 14.0,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
+  void _showWorkingNoteDialog(String? workingNote, String workingDate, String userName, BuildContext context) {
     if (workingNote == null || workingNote.isEmpty) {
       showToast(msg: "No working note available");
       return;
     }
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Working Note"),
-          content: SingleChildScrollView(
-            child: Text(workingNote),
+    DateTime parsedDate = DateFormat('dd-MM-yyyy').parse(workingDate);
+    String formattedWorkingDate = DateFormat('dd-MM-yyyy').format(parsedDate);
+
+    showCustomAlertDialog(
+      context,
+      title: 'Working Note',
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            height: 250,
+            constraints: BoxConstraints(
+              maxHeight: 400,
+            ),
+            child: SingleChildScrollView(
+              child: Text(
+                "Note: $workingNote",
+                style: TextStyle(fontSize: 18),
+              ),
+            ),
           ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text("Close"),
+        ],
+      ),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text("Close"),
+        ),
+      ],
+      titleFontSize: 27.0,
+      additionalTitleContent: Padding(
+        padding: const EdgeInsets.only(top: 1.0),
+        child: Column(
+          children: [
+            Divider(),
+            Text(
+              "User: $userName               Date: $formattedWorkingDate",
+              style: TextStyle(
+                fontSize: 14.0,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
-        );
-      },
+        ),
+      ),
     );
   }
+
+  List<Map<String, dynamic>> getFilteredData() {
+    return roles.where((role) {
+      bool matchesUserName = true;
+      bool matchesDate = true;
+      if (selectedUserName != null && selectedUserName!.isNotEmpty) {
+        matchesUserName = role['userName'] == selectedUserName;
+      }
+      if (fromDate != null && toDate != null) {
+        DateTime workingDate = _parseDate(role['workingDate']);
+        matchesDate = (workingDate.isAtSameMomentAs(fromDate!) ||
+            workingDate.isAfter(fromDate!)) &&
+            (workingDate.isAtSameMomentAs(toDate!) ||
+                workingDate.isBefore(toDate!));
+      }
+      return matchesUserName && matchesDate;
+    }).toList();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -1469,18 +1547,34 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    IconButton(
-                      icon: Icon(Icons.add, color: Colors.blue, size: 30),
-                      onPressed: _showAddWorkingModal,
+                    CustomDropdown<String>(
+                      options: roles.map((user) => user['userName'] as String).toList(),
+                      selectedOption: selectedUserName,
+                      displayValue: (userName) => userName,
+                      onChanged: (userName) {
+                        setState(() {
+                          selectedUserName = userName;
+                        });
+                      },
+                      labelText: 'Select User',
+                      width: 230.0,
+                      prefixIcon: Icon(Icons.person),
                     ),
-                    SizedBox(width: 10),
+
                     IconButton(
                       icon: Icon(
-                          Icons.date_range, color: Colors.blue, size: 30),
+                          Icons.filter_alt_outlined, color: Colors.blue, size: 30),
                       onPressed: _showDatePicker,
+                    ),
+                    SizedBox(width: 10),
+
+                    IconButton(
+                      icon: Icon(Icons.add_circle, color: Colors.blue, size: 30),
+                      onPressed: _showAddWorkingModal,
                     ),
                   ],
                 ),
+
                 SizedBox(height: 20),
                 if (isLoading)
                   Center(child: CircularProgressIndicator())
@@ -1494,12 +1588,13 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
                       Column(
                         children: getFilteredData().map((role) {
                           Map<String, dynamic> workingFields = {
-                            'UserName': role['userName'],
-                            '': role['workingDate'],
+                            'Username': role['userName'],
+                            'workingDate': role['workingDate'],
+                            'Note ': role[''] ?? "",
                             'WorkingDesc': role['workingDesc'],
                             'CreatedAt': role['createdAt'],
+                            'updatedAt': role['updatedAt'],
                             'WorkingNote': role['workingNote'],
-                            // Pass workingNote
                           };
 
                           String shortenedWorkingDesc = role['workingDesc']
@@ -1514,40 +1609,48 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
                               ? Icons.check_circle
                               : Icons.cancel;
                           Color iconColor = hasWorkingNote
-                              ? Colors
-                              .red[900]!
-                              : Colors
-                              .red[100]!;
+                              ? Colors.red[900]!
+                              : Colors.red[100]!;
 
                           return buildUserCard(
                             userFields: {
-                              'UserName': role['userName'],
+                              'Username': role['userName'],
                               'Date: ': role['workingDate'],
-
+                              'Note ': role[''] ?? "",
                               'WorkingDesc': shortenedWorkingDesc,
                               'CreatedAt': role['createdAt'],
+
                             },
                             onDelete: () => _confirmDeleteRole(role['txnId']),
-                            showDelete: true,
                             showView: true,
                             onView: () =>
-                                _showFullDescription(role['workingDesc']),
-                            topIcon: Padding(
-                              padding: const EdgeInsets.all(0),
-                              child: IconButton(
-                                icon: Icon(
-                                  icon,
-                                  color: iconColor,
-                                  size: 20,
-                                ),
-                                onPressed: () {
-                                  if (hasWorkingNote) {
-                                    _showWorkingNoteDialog(role['workingNote']);
-                                  }
-                                },
+                                _showFullDescription(role['workingDesc'], role['workingDate'],
+                                  role['userName'],context),
+                            trailingIcon: IconButton(
+                              onPressed: () =>
+                                  _confirmDeleteRole(role['txnId']),
+                              icon: Icon(
+                                Icons.delete,
+                                color: Colors.red,
                               ),
                             ),
-                            topLabel: 'Note:',
+                            leadingIcon: IconButton(
+                              onPressed: () {
+                                if (hasWorkingNote) {
+                                  _showWorkingNoteDialog(
+                                    role['workingNote'],
+                                    role['workingDate'],
+                                    role['userName'],
+                                    context
+                                  );
+                                }
+                              },
+                              icon: Icon(
+                                icon,
+                                color: iconColor,
+                                size: 20,
+                              ),
+                            ),
                           );
                         }).toList(),
                       ),
@@ -1557,5 +1660,4 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
         ),
       ),
     );
-  }
-}
+  }}
