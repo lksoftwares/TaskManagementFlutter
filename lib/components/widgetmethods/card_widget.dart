@@ -318,12 +318,6 @@ Widget buildUserCard({
                   child: leadingIcon,
                 ),
               ],
-
-              if (i >= 4 ) ...[
-                Padding(
-                  padding: const EdgeInsets.only(right: 40.0),
-                ),
-              ],
               if (i == 3) ...[
                 if (showEdit)
                   IconButton(
@@ -390,7 +384,6 @@ Widget buildUserCard({
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // User fields
           ...fieldRows,
           const Divider(
             thickness: 1,

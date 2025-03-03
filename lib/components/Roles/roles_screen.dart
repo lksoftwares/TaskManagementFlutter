@@ -504,6 +504,9 @@ class _RolesPageState extends State<RolesPage> {
           child: Text('Cancel'),
         ),
         ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.green,
+          ),
           onPressed: () {
             if (roleName.isEmpty) {
               showToast(msg: 'Please fill in the role name');
@@ -511,7 +514,7 @@ class _RolesPageState extends State<RolesPage> {
               _addRole(roleName);
             }
           },
-          child: Text('Add'),
+          child: Text('Add',style: TextStyle(color: Colors.white),),
         ),
       ],
     );
@@ -528,11 +531,14 @@ class _RolesPageState extends State<RolesPage> {
           child: Text('Cancel'),
         ),
         ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+          ),
           onPressed: () {
             _deleteRole(roleId);
             Navigator.pop(context);
           },
-          child: Text('Delete'),
+          child: Text('Delete',style: TextStyle(color: Colors.white),),
         ),
       ],
     );
@@ -602,6 +608,9 @@ class _RolesPageState extends State<RolesPage> {
           child: Text('Cancel'),
         ),
         ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.green,
+          ),
           onPressed: () {
             if (_roleController.text.isEmpty) {
               showToast(msg: 'Please enter a role name');
@@ -609,7 +618,7 @@ class _RolesPageState extends State<RolesPage> {
               _updateRole(roleId, _roleController.text);
             }
           },
-          child: Text('Update'),
+          child: Text('Update',style: TextStyle(color: Colors.white),),
         ),
       ],
     );
@@ -652,7 +661,6 @@ class _RolesPageState extends State<RolesPage> {
                         '': role[''],
                         'Status': role['roleStatus'],
                         'CreatedAt': role['createdAt'],
-                        'UpdatedAt': role['updatedAt'],
                       };
 
                       return buildUserCard(

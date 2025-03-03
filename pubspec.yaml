@@ -39,7 +39,9 @@ dependencies:
   http: ^1.2.2
   fluttertoast: ^8.2.10
   intl: ^0.20.2
-
+  device_info_plus: ^11.3.0
+  url_launcher: ^6.3.1
+  permission_handler: ^11.4.0
 
 
 dev_dependencies:
@@ -66,8 +68,18 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-
     - images/Logo.png
+    - images/Login.jpg
+    - images/Login2.jpg
+    - images/Login3.jpg
+    - images/Login4.jpg
+    - images/Login5.jpg
+    - images/Login6.jpg
+    - images/Login7.jpg
+    - images/Login8.jpg
+
+
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

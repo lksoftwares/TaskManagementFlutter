@@ -8,14 +8,14 @@ import '../widgetmethods/logout _method.dart';
 import '../widgetmethods/no_data_found.dart';
 import '../widgetmethods/toast_method.dart';
 
-class ShreyaPage extends StatefulWidget {
-  const ShreyaPage({super.key});
+class UsersPage extends StatefulWidget {
+  const UsersPage({super.key});
 
   @override
-  State<ShreyaPage> createState() => _ShreyaPageState();
+  State<UsersPage> createState() => _UsersPageState();
 }
 
-class _ShreyaPageState extends State<ShreyaPage> {
+class _UsersPageState extends State<UsersPage> {
   List<Map<String, dynamic>> users = [];
   bool isLoading = false;
 
@@ -133,6 +133,9 @@ class _ShreyaPageState extends State<ShreyaPage> {
       actions: [
         TextButton(onPressed: () => Navigator.pop(context), child: Text('Cancel')),
         ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.green,
+          ),
           onPressed: () {
             if (nameController.text.isEmpty || emailController.text.isEmpty || passwordController.text.isEmpty) {
               showToast(msg: 'Please fill all fields');
@@ -144,7 +147,7 @@ class _ShreyaPageState extends State<ShreyaPage> {
               _updateUser(userId, nameController.text, emailController.text, passwordController.text);
             }
           },
-          child: Text(userId == null ? 'Add' : 'Update'),
+          child: Text(userId == null ? 'Add' : 'Update',style: TextStyle(color: Colors.white),),
         ),
       ],
     );
@@ -160,11 +163,14 @@ class _ShreyaPageState extends State<ShreyaPage> {
           child: Text('Cancel'),
         ),
         ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+          ),
           onPressed: () {
             _deleteUser(userId);
             Navigator.pop(context);
           },
-          child: Text('Delete'),
+          child: Text('Delete',style: TextStyle(color: Colors.white),),
         ),
       ],
     );
@@ -221,7 +227,7 @@ class _ShreyaPageState extends State<ShreyaPage> {
                       Map<String, dynamic> roleFields = {
                         'User Name': user['userName'],
                         '':  user[''],
-                        'User Status': user['userStatus'] ?? false,
+                        'UserStatus': user['userStatus'] ?? false,
 
                         'userEmail': user['userEmail'],
                         'Password: ': user['userPassword'],

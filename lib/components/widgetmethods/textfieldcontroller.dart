@@ -7,7 +7,9 @@ class CustomTextField extends StatefulWidget {
   final bool obscureText;
   final TextInputType keyboardType;
   final double width;
-  final Icon? prefixIcon;  // Optional prefix icon
+  final Icon? prefixIcon;
+  final Icon? suffixIcon;
+  final VoidCallback? onSuffixIconPressed;
 
   CustomTextField({
     Key? key,
@@ -17,7 +19,9 @@ class CustomTextField extends StatefulWidget {
     this.obscureText = false,
     this.keyboardType = TextInputType.text,
     this.width = 320.0,
-    this.prefixIcon, // Include the optional prefixIcon parameter
+    this.prefixIcon,
+    this.suffixIcon,
+    this.onSuffixIconPressed,
   }) : super(key: key);
 
   @override
@@ -42,69 +46,13 @@ class _CustomTextFieldState extends State<CustomTextField> {
               borderRadius: BorderRadius.circular(8.0),
             ),
             prefixIcon: widget.prefixIcon,
+            suffixIcon: widget.suffixIcon != null
+                ? IconButton(
+              icon: widget.suffixIcon!,
+              onPressed: widget.onSuffixIconPressed,
+            )
+                : null,
           ),
-        ),
-      ),
-    );
-  }
-}
-
-
-class HomePage extends StatefulWidget {
-  @override
-  _HomePageState createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Custom TextField Example'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            CustomTextField(
-              controller: _nameController,
-              label: 'Name',
-              hintText: 'Enter your name',
-            ),
-            CustomTextField(
-              controller: _emailController,
-              label: 'Email',
-              hintText: 'Enter your email',
-              keyboardType: TextInputType.emailAddress,
-            ),
-            CustomTextField(
-              controller: _passwordController,
-              label: 'Password',
-              hintText: 'Enter your password',
-              obscureText: true,
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                print('Name: ${_nameController.text}');
-                print('Email: ${_emailController.text}');
-                print('Password: ${_passwordController.text}');
-              },
-              child: const Text('Submit'),
-            ),
-          ],
         ),
       ),
     );

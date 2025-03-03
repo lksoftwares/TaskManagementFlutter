@@ -1109,19 +1109,8 @@
 //   }
 // }
 
-
-import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
-import 'package:taskmanagement/components/widgetmethods/card_widget.dart';
-import 'package:taskmanagement/components/widgetmethods/dropdown_controller.dart';
-import '../widgetmethods/alert_widget.dart';
-import '../widgetmethods/api_method.dart';
-import '../widgetmethods/appbar_method.dart';
-import '../widgetmethods/datagrid_class.dart';
-import '../widgetmethods/logout _method.dart';
-import '../widgetmethods/no_data_found.dart';
-import '../widgetmethods/toast_method.dart';
+import 'package:taskmanagement/Packages/headerfiles.dart';
 
 class DailyWorkingStatus extends StatefulWidget {
   const DailyWorkingStatus({super.key});
@@ -1140,34 +1129,6 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
   DateTime? toDate;
   String? selectedUserName;
   Map<String, dynamic>? selectedUser;
-
-  List<ColumnConfig> getColumnsConfig() {
-    return [
-      ColumnConfig(
-        columnName: 'workingDesc',
-        labelText: 'Working Desc',
-        allowSorting: true,
-        visible: true,
-      ),
-      ColumnConfig(
-        columnName: 'workingDate',
-        labelText: 'Working Date',
-        visible: true,
-      ),
-      ColumnConfig(
-        columnName: 'createdAt',
-        labelText: 'Created At',
-        visible: true,
-        columnWidthMode: ColumnWidthMode.auto,
-      ),
-      ColumnConfig(
-        columnName: 'updatedAt',
-        labelText: 'Updated At',
-        visible: true,
-        columnWidthMode: ColumnWidthMode.auto,
-      ),
-    ];
-  }
 
   @override
   void initState() {
@@ -1201,7 +1162,7 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
 
     final response = await new ApiService().request(
       method: 'get',
-      endpoint: 'Working/GetWorkingStatus',
+      endpoint: 'Working/GetWorking',
     );
     print('Response: $response');
     if (response['statusCode'] == 200 && response['apiResponse'] != null) {
@@ -1236,7 +1197,6 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
       isLoading = false;
     });
   }
-
 
   DateTime _parseDate(String dateStr) {
     try {
@@ -1298,6 +1258,9 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
           child: Text('Cancel'),
         ),
         ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.green,
+          ),
           onPressed: () {
             if (workingDesc.isEmpty) {
               showToast(msg: 'Please fill in the Working desc');
@@ -1307,7 +1270,7 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
               _addWorking(workingDesc, selectedUserId!);
             }
           },
-          child: Text('Add'),
+          child: Text('Add',style: TextStyle(color: Colors.white),),
         ),
       ],
     );
@@ -1316,7 +1279,7 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
   Future<void> _addWorking(String workingDesc, String userId) async {
     final response = await new ApiService().request(
       method: 'post',
-      endpoint: 'WorkingStatus/AddWorkingStatus',
+      endpoint: 'Working/AddWorking',
       body: {
         'workingDesc': workingDesc,
         'userId': selectedUserId
@@ -1359,8 +1322,6 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
     });
   }
 
-
-
   void _confirmDeleteRole(int txnId) {
     showCustomAlertDialog(
       context,
@@ -1372,11 +1333,14 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
           child: Text('Cancel'),
         ),
         ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+          ),
           onPressed: () {
             _deleteRole(txnId);
             Navigator.pop(context);
           },
-          child: Text('Delete'),
+          child: Text('Delete',style: TextStyle(color: Colors.white),),
         ),
       ],
     );
@@ -1385,7 +1349,7 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
   Future<void> _deleteRole(int txnId) async {
     final response = await new ApiService().request(
       method: 'delete',
-      endpoint: 'WorkingStatus/DeleteWorkingStatus/$txnId',
+      endpoint: 'Working/DeleteWorking/$txnId',
     );
     if (response.isNotEmpty && response['statusCode'] == 200) {
       fetchWorking();
@@ -1528,7 +1492,6 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
     }).toList();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1560,11 +1523,13 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
                       width: 230.0,
                       prefixIcon: Icon(Icons.person),
                     ),
-
-                    IconButton(
-                      icon: Icon(
-                          Icons.filter_alt_outlined, color: Colors.blue, size: 30),
-                      onPressed: _showDatePicker,
+                    Padding(
+                      padding: const EdgeInsets.only(left: 30.0),
+                      child: IconButton(
+                        icon: Icon(
+                            Icons.filter_alt_outlined, color: Colors.blue, size: 30),
+                        onPressed: _showDatePicker,
+                      ),
                     ),
                     SizedBox(width: 10),
 
@@ -1574,7 +1539,6 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
                     ),
                   ],
                 ),
-
                 SizedBox(height: 20),
                 if (isLoading)
                   Center(child: CircularProgressIndicator())
@@ -1611,15 +1575,13 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
                           Color iconColor = hasWorkingNote
                               ? Colors.red[900]!
                               : Colors.red[100]!;
-
                           return buildUserCard(
                             userFields: {
                               'Username': role['userName'],
                               'Date: ': role['workingDate'],
                               'Note ': role[''] ?? "",
                               'WorkingDesc': shortenedWorkingDesc,
-                              'CreatedAt': role['createdAt'],
-
+                              'CreatedAt':role['createdAt'],
                             },
                             onDelete: () => _confirmDeleteRole(role['txnId']),
                             showView: true,

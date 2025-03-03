@@ -1,6 +1,5 @@
 
 class Config {
-  static const String apiUrl = "http://192.168.1.115:5070/";
-
+  static const String apiUrl = "http://192.168.1.4:5072/";
 }
 
