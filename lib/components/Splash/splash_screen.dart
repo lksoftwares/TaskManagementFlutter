@@ -12,10 +12,7 @@ class SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     Timer(Duration(seconds: 5), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => LoginScreen()),
-      );
+      Navigator.pushNamed(context, '/login');
     });
   }
 
@@ -28,11 +25,13 @@ class SplashScreenState extends State<SplashScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              CircleAvatar(
-                radius: 45,
-                backgroundImage: AssetImage('images/Logo.png'),
+
+              Image.asset(
+                'images/Logo.png',
+                width: 135,
+                height: 135,
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 10),
               Text(
                 "Task Management",
                 style: TextStyle(

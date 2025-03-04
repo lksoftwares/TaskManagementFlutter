@@ -89,6 +89,8 @@ class CustomDropdown<T extends Object> extends StatefulWidget {
   final String labelText;
   final Icon? prefixIcon;
   final double? width;
+  final double? minHeight; // Min height for dropdown
+  final double? maxHeight; // Max height for dropdown
 
   const CustomDropdown({
     Key? key,
@@ -99,6 +101,8 @@ class CustomDropdown<T extends Object> extends StatefulWidget {
     required this.labelText,
     this.prefixIcon,
     this.width,
+    this.minHeight = 50, // Default min height
+    this.maxHeight = 200, // Default max height
   }) : super(key: key);
 
   @override
@@ -117,6 +121,7 @@ class _CustomDropdownState<T extends Object> extends State<CustomDropdown<T>> {
     super.initState();
     _controller.text = widget.selectedOption != null ? widget.displayValue(widget.selectedOption!) : '';
     _focusNode.addListener(_onFocusChange);
+    _filteredOptions = widget.options;
   }
 
   @override
@@ -137,7 +142,6 @@ class _CustomDropdownState<T extends Object> extends State<CustomDropdown<T>> {
   }
 
   void _showOverlay() {
-    _filteredOptions = widget.options;
     _overlayEntry = _createOverlayEntry();
     Overlay.of(context).insert(_overlayEntry!);
   }
@@ -151,6 +155,9 @@ class _CustomDropdownState<T extends Object> extends State<CustomDropdown<T>> {
     RenderBox renderBox = context.findRenderObject() as RenderBox;
     var size = renderBox.size;
     var offset = renderBox.localToGlobal(Offset.zero);
+    double height = _filteredOptions.length * 55.0;
+    height = height < widget.minHeight! ? widget.minHeight! : height;
+    height = height > widget.maxHeight! ? widget.maxHeight! : height;
 
     return OverlayEntry(
       builder: (context) => Positioned(
@@ -164,8 +171,10 @@ class _CustomDropdownState<T extends Object> extends State<CustomDropdown<T>> {
           child: Material(
             elevation: 4.0,
             child: Container(
-              height: 250,
-              child: ListView.builder(
+              height: height,
+              child: _filteredOptions.isEmpty
+                  ? const SizedBox()
+                  : ListView.builder(
                 padding: EdgeInsets.zero,
                 shrinkWrap: true,
                 itemCount: _filteredOptions.length,
@@ -221,13 +230,25 @@ class _CustomDropdownState<T extends Object> extends State<CustomDropdown<T>> {
                     .toList();
 
                 if (value.isEmpty) {
-                  widget.onChanged(null);
-                }
-
-                if (_filteredOptions.isEmpty) {
-                  _hideOverlay();
-                } else if (_overlayEntry == null && _focusNode.hasFocus) {
-                  _showOverlay();
+                  widget.onChanged;
+                  _filteredOptions = widget.options;
+                  if (_overlayEntry != null) {
+                    _overlayEntry?.remove();
+                    _overlayEntry = _createOverlayEntry();
+                    Overlay.of(context).insert(_overlayEntry!);
+                  } else if (_focusNode.hasFocus) {
+                    _showOverlay();
+                  }
+                } else {
+                  if (_filteredOptions.isEmpty && value.isNotEmpty) {
+                    _hideOverlay();
+                  } else if (_overlayEntry == null && _focusNode.hasFocus) {
+                    _showOverlay();
+                  } else if (_overlayEntry != null) {
+                    _overlayEntry?.remove();
+                    _overlayEntry = _createOverlayEntry();
+                    Overlay.of(context).insert(_overlayEntry!);
+                  }
                 }
               });
             },

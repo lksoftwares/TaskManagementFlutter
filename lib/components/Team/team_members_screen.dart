@@ -17,6 +17,12 @@ class TeamMembersScreen extends StatefulWidget {
 
 class _TeamMembersScreenState extends State<TeamMembersScreen> {
   List<Map<String, dynamic>> teams = [];
+  List<Map<String, dynamic>> usersList = [];
+  List<Map<String, dynamic>> rolesList = [];
+  List<Map<String, dynamic>> teamsList = [];
+  int? selectedUserId;
+  int? selectedRoleId;
+  int? selectedTeamId;
 
   bool isLoading = false;
 
@@ -24,11 +30,58 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
   @override
   void initState() {
     super.initState();
-    fetchTeams();
+    _getData();
+  }
+  Future<void> _getData() async {
+    await fetchTeamsMembers();
+    await fetchUsers();
+    await fetchRoles();
+    await fetchTeams();
   }
 
+  Future<void> fetchUsers() async {
+    final response = await new ApiService().request(
+      method: 'get',
+      endpoint: 'User/GetAllUsers',
+    );
+    if (response['statusCode'] == 200 && response['apiResponse'] != null) {
+      setState(() {
+        usersList = List<Map<String, dynamic>>.from(response['apiResponse']);
+      });
+    } else {
+      showToast(msg: 'Failed to load users');
+    }
+  }
+
+  Future<void> fetchRoles() async {
+    final response = await new ApiService().request(
+      method: 'get',
+      endpoint: 'roles/GetAllRole',
+    );
+    if (response['statusCode'] == 200 && response['apiResponse'] != null) {
+      setState(() {
+        rolesList = List<Map<String, dynamic>>.from(response['apiResponse']);
+      });
+    } else {
+      print("Failed to load roles");
+    }
+  }
 
   Future<void> fetchTeams() async {
+    final response = await new ApiService().request(
+      method: 'get',
+      endpoint: 'teams/GetAllTeam',
+    );
+    if (response['statusCode'] == 200 && response['apiResponse'] != null) {
+      setState(() {
+        teamsList = List<Map<String, dynamic>>.from(response['apiResponse']);
+      });
+    } else {
+      print("Failed to load teams");
+    }
+  }
+
+  Future<void> fetchTeamsMembers() async {
     setState(() {
       isLoading = true;
     });
@@ -43,11 +96,14 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
         teams = List<Map<String, dynamic>>.from(
           response['apiResponse'].map((role) => {
             'tmId': role['tmId'] ?? 0,
+            'userId': role['userId'] ?? 0,
+            'roleId': role['roleId'] ?? 0,
+            'teamId': role['teamId'] ?? 0,
+
             'teamName': role['teamName'] ?? 'Unknown team',
             'createdAt': role['createdAt'] ?? '',
             'roleName': role['roleName'] ?? 'Unknown role',
             'userName': role['userName'] ?? 'Unknown team',
-
           }),
         );
       });
@@ -59,91 +115,115 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
     });
   }
 
-  Future<void> _addTeam(String teamName, String tmDescription) async {
+  Future<void> _addTeamMembers( int userId, int roleId, int teamId) async {
     final response = await new ApiService().request(
       method: 'post',
-      endpoint: 'teams/AddEditTeam',
+      endpoint: 'teams/AddEditTeamMember',
       body: {
-        'teamName': teamName,
-        'tmDescription': tmDescription,
+
+        'userId': userId,
+        'roleId': roleId,
+        'teamId': teamId,
       },
     );
 
     if (response.isNotEmpty && response['statusCode'] == 200) {
-      fetchTeams();
+      fetchTeamsMembers();
       showToast(
-        msg: response['message'] ?? 'Team added successfully',
+        msg: response['message'] ?? 'Team Members added successfully',
         backgroundColor: Colors.green,
       );
       Navigator.pop(context);
-    }  else {
+    } else {
       showToast(
-        msg: response['message'] ?? 'Failed to add role',
+        msg: response['message'] ?? 'Failed to add team member',
       );
     }
   }
 
-  void _showAddRoleModal() {
-    String teamName = '';
-    String tmDescription = '';
 
-    InputDecoration inputDecoration = InputDecoration(
-      labelText: 'Team Name',
-      border: OutlineInputBorder(),
-    );
+  Future<void> _showAddRoleModal() async {
 
-    InputDecoration descriptionDecoration = InputDecoration(
-      labelText: 'Description',
-      border: OutlineInputBorder(),
-    );
+    setState(() {
+      selectedUserId = null;
+      selectedRoleId = null;
+      rolesList.clear();
+    });
+
+    await fetchRoles();
 
     showCustomAlertDialog(
       context,
-      title: 'Add Team',
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            onChanged: (value) => teamName = value,
-            decoration: inputDecoration,
-          ),
-          SizedBox(height: 10),
-          TextField(
-            onChanged: (value) => tmDescription = value,
-            decoration: descriptionDecoration,
-          ),
-        ],
+      title: 'Add Team Members',
+      content: StatefulBuilder(
+        builder: (context, setState) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButtonFormField<int>(
+                decoration: InputDecoration(labelText: 'Select User', border: OutlineInputBorder()),
+                items: usersList.map((user) {
+                  return DropdownMenuItem<int>(
+                    value: user['userId'],
+                    child: Text(user['userName']),
+                  );
+                }).toList(),
+                onChanged: (value) async {
+                  setState(() {
+                    selectedUserId = value;
+                    rolesList.clear();
+                  });
+                  await fetchRoles();
+                  setState(() {});
+                },
+              ),
+              SizedBox(height: 10),
+              DropdownButtonFormField<int>(
+                decoration: InputDecoration(labelText: 'Select Role', border: OutlineInputBorder()),
+                items: rolesList.map((role) {
+                  return DropdownMenuItem<int>(
+                    value: role['roleId'],
+                    child: Text(role['roleName']),
+                  );
+                }).toList(),
+                onChanged: (value) => selectedRoleId = value,
+              ),
+              SizedBox(height: 10),
+              DropdownButtonFormField<int>(
+                decoration: InputDecoration(labelText: 'Select team', border: OutlineInputBorder()),
+                items: teamsList.map((role) {
+                  return DropdownMenuItem<int>(
+                    value: role['teamId'],
+                    child: Text(role['teamName']),
+                  );
+                }).toList(),
+                onChanged: (value) => selectedTeamId = value,
+              ),
+            ],
+          );
+        },
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Cancel'),
-        ),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text('Cancel')),
         ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.green,
-          ),
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
           onPressed: () {
-            if (teamName.isEmpty || tmDescription.isEmpty) {
-              showToast(msg: 'Please fill in both fields');
-            } else {
-              _addTeam(teamName, tmDescription);
+            if (selectedUserId == null || selectedRoleId == null || selectedTeamId == null) {
+              showToast(msg: 'Please select all fields');
+              return;
             }
+            _addTeamMembers(selectedUserId!, selectedRoleId!,selectedTeamId!);
           },
-          child: Text(
-            'Add',
-            style: TextStyle(color: Colors.white),
-          ),
+          child: Text('Add', style: TextStyle(color: Colors.white)),
         ),
       ],
     );
   }
 
-
-  void _confirmDeleteTeam(int tmId) {
+  void _confirmDeleteTeamMember(int tmId) {
     showCustomAlertDialog(
       context,
-      title: 'Delete Team Members',
+      title: 'Delete Team Member',
       content: Text('Are you sure you want to delete this team Member?'),
       actions: [
         TextButton(
@@ -155,7 +235,7 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
             backgroundColor: Colors.red,
           ),
           onPressed: () {
-            _deleteTeam(tmId);
+            _deleteTeamMember(tmId);
             Navigator.pop(context);
           },
           child: Text('Delete',style: TextStyle(color: Colors.white),),
@@ -164,7 +244,7 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
     );
   }
 
-  Future<void> _deleteTeam(int tmId) async {
+  Future<void> _deleteTeamMember(int tmId) async {
 
     final response = await new ApiService().request(
       method: 'delete',
@@ -173,68 +253,114 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
     if (response['statusCode'] == 200) {
       String message = response['message'] ?? 'Team Member deleted successfully';
       showToast(msg: message, backgroundColor: Colors.green);
-      fetchTeams();
+      fetchTeamsMembers();
     } else {
       String message = response['message'] ?? 'Failed to delete TeamMember';
       showToast(msg: message);
     }
   }
 
-  Future<void> _updateTeam(int teamId, String teamName,String tmDescription) async {
-    final response = await new ApiService().request(
+
+  Future<void> _updateUserRole(int tmId, int userId, int roleId, int teamId) async {
+    final response = await ApiService().request(
       method: 'post',
-      endpoint: 'teams/AddEditTeam',
+      endpoint: 'teams/AddEditTeamMember',
       body: {
+        'tmId': tmId,
+        'userId': userId,
+        'roleId': roleId,
         'teamId': teamId,
-        'teamName': teamName,
-        'tmDescription':tmDescription,
         'updateFlag': true,
       },
     );
 
-    print('Update Response: $response');
-
-    if (response.isNotEmpty && response['statusCode'] == 200) {
-      fetchTeams();
-      showToast(
-        msg: response['message'] ?? 'Team updated successfully',
-        backgroundColor: Colors.green,
-      );
+    if (response['statusCode'] == 200) {
+      fetchTeamsMembers();
+      showToast(msg: response['message'] ?? 'Role updated successfully', backgroundColor: Colors.green);
       Navigator.pop(context);
     } else {
-      showToast(
-        msg: response['message'] ?? 'Failed to update team',
-      );
+      showToast(msg: response['message'] ?? 'Failed to update role');
     }
   }
 
+  Future<void> _showEditTeammemberModal(int tmId) async {
 
-  void _showEditTeamModal(int teamId, String currentTeamName, String currentDescription) {
-    TextEditingController _teamController = TextEditingController(text: currentTeamName);
-    TextEditingController _descriptionController = TextEditingController(text: currentDescription);
+
+    // Here, find the selected member from the team list using tmId
+    final currentMember = teams.firstWhere((member) => member['tmId'] == tmId);
+
+    // Initialize the selected values for the dropdowns
+    selectedUserId = currentMember['userId'];
+    selectedRoleId = currentMember['roleId'];
+    selectedTeamId = currentMember['teamId'];
+
+    print("Selected UserId: $selectedUserId");
+    print("Selected RoleId: $selectedRoleId");
+    print("Selected TeamId: $selectedTeamId");
 
     showCustomAlertDialog(
       context,
-      title: 'Edit Team',
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: _teamController,
-            decoration: InputDecoration(
-              labelText: 'Team Name',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          SizedBox(height: 10),
-          TextField(
-            controller: _descriptionController,
-            decoration: InputDecoration(
-              labelText: 'Description',
-              border: OutlineInputBorder(),
-            ),
-          ),
-        ],
+      title: 'Edit Team Member',
+      content: StatefulBuilder(
+        builder: (context, setState) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // User dropdown
+              DropdownButtonFormField<int>(
+                value: selectedUserId,
+                decoration: InputDecoration(labelText: 'Select User', border: OutlineInputBorder()),
+                items: usersList.map((user) {
+                  return DropdownMenuItem<int>(
+                    value: user['userId'],
+                    child: Text(user['userName']),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedUserId = value;
+                  });
+                },
+              ),
+              SizedBox(height: 10),
+
+              // Role dropdown
+              DropdownButtonFormField<int>(
+                value: selectedRoleId,
+                decoration: InputDecoration(labelText: 'Select Role', border: OutlineInputBorder()),
+                items: rolesList.map((role) {
+                  return DropdownMenuItem<int>(
+                    value: role['roleId'],
+                    child: Text(role['roleName']),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedRoleId = value;
+                  });
+                },
+              ),
+              SizedBox(height: 10),
+
+              // Team dropdown
+              DropdownButtonFormField<int>(
+                value: selectedTeamId,
+                decoration: InputDecoration(labelText: 'Select Team', border: OutlineInputBorder()),
+                items: teamsList.map((team) {
+                  return DropdownMenuItem<int>(
+                    value: team['teamId'],
+                    child: Text(team['teamName']),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedTeamId = value;
+                  });
+                },
+              ),
+            ],
+          );
+        },
       ),
       actions: [
         TextButton(
@@ -242,21 +368,20 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
           child: Text('Cancel'),
         ),
         ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.green,
-          ),
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
           onPressed: () {
-            if (_teamController.text.isEmpty || _descriptionController.text.isEmpty) {
-              showToast(msg: 'Please fill in both fields');
-            } else {
-              _updateTeam(teamId, _teamController.text, _descriptionController.text);
+            if (selectedUserId == null || selectedRoleId == null || selectedTeamId == null) {
+              showToast(msg: 'Please select all fields');
+              return;
             }
+            _updateUserRole(tmId, selectedUserId!, selectedRoleId!, selectedTeamId!);
           },
           child: Text('Update', style: TextStyle(color: Colors.white)),
         ),
       ],
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -266,7 +391,7 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
         onLogout: () => AuthService.logout(context),
       ),
       body: RefreshIndicator(
-        onRefresh: fetchTeams,
+        onRefresh: fetchTeamsMembers,
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(8.0),
@@ -296,20 +421,19 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
                         'Username:': role['userName'],
                         'Rolename': role['roleName'],
                         'CreatedAt': role['createdAt'],
-
                       };
 
                       return buildUserCard(
                         userFields: roleFields,
-                        onEdit: () => _showEditTeamModal(role['teamId'], role['teamName'],role['tmDescription']),
-                        onDelete: () => _confirmDeleteTeam(role['tmId']),
+                        onEdit: () => _showEditTeammemberModal(role['tmId']),
+                        onDelete: () => _confirmDeleteTeamMember(role['tmId']),
                         trailingIcon:
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            IconButton(onPressed: ()=>_showEditTeamModal(role['teamId'], role['teamName'],role['tmDescription']),
+                            IconButton(onPressed: ()=>_showEditTeammemberModal(role['tmId']),
                                 icon: Icon(Icons.edit,color: Colors.green,)),
-                            IconButton(onPressed: ()=>_confirmDeleteTeam(role['tmId']),
+                            IconButton(onPressed: ()=>_confirmDeleteTeamMember(role['tmId']),
                                 icon: Icon(Icons.delete,color: Colors.red,)),
 
                           ],

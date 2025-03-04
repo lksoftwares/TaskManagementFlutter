@@ -13,11 +13,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   CustomAppBar({
     Key? key,
     this.title = 'My App',
-    this.fontSize = 24.0,
+    this.fontSize = 26.0,
     this.fontWeight = FontWeight.bold,
     this.fontColor = Colors.white,
     this.onLogout,
-  }) : preferredSize = Size.fromHeight(56.0),
+  }) : preferredSize = Size.fromHeight(60.0),
         super(key: key);
 
   @override

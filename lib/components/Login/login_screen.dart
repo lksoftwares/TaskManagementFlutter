@@ -215,7 +215,7 @@ class _LoginScreenState extends State<LoginScreen> {
   //     _showDeveloperOptionsDialog();
   //   }
   // }
-  //
+
   // Future<bool> _isDeveloperOptionsEnabled() async {
   //   try {
   //     final deviceInfo = await DeviceInfoPlugin().androidInfo;
@@ -232,7 +232,7 @@ class _LoginScreenState extends State<LoginScreen> {
   //       return AlertDialog(
   //         title: Text("Developer Options Detected"),
   //         content: Text(
-  //             "It looks like Developer Options are enabled. Please disable them for proper app functionality."),
+  //             "It looks like Developer Options are enabled. Please disable it."),
   //         actions: <Widget>[
   //           TextButton(
   //             onPressed: () {

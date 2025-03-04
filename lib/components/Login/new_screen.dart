@@ -1,13 +1,16 @@
+import 'package:flutter/material.dart';
 import 'package:taskmanagement/Packages/headerfiles.dart';
 
 
 class DashboardScreen extends StatelessWidget {
   final List<Map<String, dynamic>> dashboardItems = [
-    {'title': 'Roles', 'icon': Icons.people_alt_rounded, 'color': Colors.blue, 'page': RolesPage()},
-    {'title': 'Users', 'icon': Icons.person, 'color': Colors.orange, 'page': UsersPage()},
-    {'title': 'User Role', 'icon': Icons.supervised_user_circle_outlined, 'color': Colors.purple, 'page': UserroleScreen()},
-    {'title': 'Working Status', 'icon': Icons.task, 'color': Colors.green, 'page': DailyWorkingStatus()},
-
+    {'title': 'Roles', 'icon': Icons.people_alt_rounded, 'color': Colors.blue, 'route': '/roles'},
+    {'title': 'Users', 'icon': Icons.person, 'color': Colors.orange, 'route': '/users'},
+    {'title': 'User Role', 'icon': Icons.supervised_user_circle_outlined, 'color': Colors.purple, 'route': '/userrole'},
+    {'title': 'Working Status', 'icon': Icons.task, 'color': Colors.green, 'route': '/status'},
+    {'title': 'Team', 'icon': Icons.task, 'color': Colors.brown, 'route': '/team'},
+    {'title': 'Team Members', 'icon': Icons.task, 'color': Colors.red, 'route': '/teammember'},
+    {'title': 'Projects', 'icon': Icons.task, 'color': Colors.deepPurple, 'route': '/project'},
   ];
 
   @override
@@ -16,7 +19,8 @@ class DashboardScreen extends StatelessWidget {
       appBar: CustomAppBar(
         title: 'Dashboard',
         onLogout: () => AuthService.logout(context),
-      ),      body: Padding(
+      ),
+      body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: GridView.builder(
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -30,12 +34,8 @@ class DashboardScreen extends StatelessWidget {
             final item = dashboardItems[index];
             return GestureDetector(
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => item['page'],
-                  ),
-                );
+                // Navigate using the named route
+                Navigator.pushNamed(context, item['route']);
               },
               child: Container(
                 decoration: BoxDecoration(
