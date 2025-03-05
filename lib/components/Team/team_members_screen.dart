@@ -217,6 +217,8 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
           child: Text('Add', style: TextStyle(color: Colors.white)),
         ),
       ],
+      titleHeight: 65,
+
     );
   }
 
@@ -241,6 +243,8 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
           child: Text('Delete',style: TextStyle(color: Colors.white),),
         ),
       ],
+      titleHeight: 65,
+
     );
   }
 
@@ -286,10 +290,8 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
   Future<void> _showEditTeammemberModal(int tmId) async {
 
 
-    // Here, find the selected member from the team list using tmId
     final currentMember = teams.firstWhere((member) => member['tmId'] == tmId);
 
-    // Initialize the selected values for the dropdowns
     selectedUserId = currentMember['userId'];
     selectedRoleId = currentMember['roleId'];
     selectedTeamId = currentMember['teamId'];
@@ -342,7 +344,6 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
               ),
               SizedBox(height: 10),
 
-              // Team dropdown
               DropdownButtonFormField<int>(
                 value: selectedTeamId,
                 decoration: InputDecoration(labelText: 'Select Team', border: OutlineInputBorder()),
@@ -379,6 +380,8 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
           child: Text('Update', style: TextStyle(color: Colors.white)),
         ),
       ],
+      titleHeight: 65,
+
     );
   }
 

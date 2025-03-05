@@ -308,6 +308,7 @@ Future<void> showCustomAlertDialog(
       FontWeight titleFontWeight = FontWeight.bold,
       Color titleColor = Colors.white,
       Widget? additionalTitleContent,
+      double titleHeight = 102, // New parameter to adjust the height
     }) async {
   return showDialog(
     context: context,
@@ -327,7 +328,7 @@ Future<void> showCustomAlertDialog(
           clipBehavior: Clip.none,
           children: [
             Container(
-              height: 102,
+              height: titleHeight, // Use the parameter for height
               decoration: BoxDecoration(
                 color: Colors.blue,
                 borderRadius: BorderRadius.only(

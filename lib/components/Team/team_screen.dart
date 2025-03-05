@@ -135,6 +135,8 @@ class _TeamScreenState extends State<TeamScreen> {
           ),
         ),
       ],
+      titleHeight: 65,
+
     );
   }
 
@@ -160,6 +162,8 @@ class _TeamScreenState extends State<TeamScreen> {
           child: Text('Delete',style: TextStyle(color: Colors.white),),
         ),
       ],
+      titleHeight: 65,
+
     );
   }
 
@@ -254,6 +258,8 @@ class _TeamScreenState extends State<TeamScreen> {
           child: Text('Update', style: TextStyle(color: Colors.white)),
         ),
       ],
+      titleHeight: 65,
+
     );
   }
 

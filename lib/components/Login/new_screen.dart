@@ -8,9 +8,9 @@ class DashboardScreen extends StatelessWidget {
     {'title': 'Users', 'icon': Icons.person, 'color': Colors.orange, 'route': '/users'},
     {'title': 'User Role', 'icon': Icons.supervised_user_circle_outlined, 'color': Colors.purple, 'route': '/userrole'},
     {'title': 'Working Status', 'icon': Icons.task, 'color': Colors.green, 'route': '/status'},
-    {'title': 'Team', 'icon': Icons.task, 'color': Colors.brown, 'route': '/team'},
+    {'title': 'Team', 'icon': Icons.group, 'color': Colors.brown, 'route': '/team'},
     {'title': 'Team Members', 'icon': Icons.task, 'color': Colors.red, 'route': '/teammember'},
-    {'title': 'Projects', 'icon': Icons.task, 'color': Colors.deepPurple, 'route': '/project'},
+    {'title': 'Projects', 'icon': Icons.note_alt_outlined, 'color': Colors.deepPurple, 'route': '/project'},
   ];
 
   @override

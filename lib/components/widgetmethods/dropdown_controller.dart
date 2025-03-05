@@ -89,8 +89,8 @@ class CustomDropdown<T extends Object> extends StatefulWidget {
   final String labelText;
   final Icon? prefixIcon;
   final double? width;
-  final double? minHeight; // Min height for dropdown
-  final double? maxHeight; // Max height for dropdown
+  final double? minHeight;
+  final double? maxHeight;
 
   const CustomDropdown({
     Key? key,
@@ -101,8 +101,8 @@ class CustomDropdown<T extends Object> extends StatefulWidget {
     required this.labelText,
     this.prefixIcon,
     this.width,
-    this.minHeight = 50, // Default min height
-    this.maxHeight = 200, // Default max height
+    this.minHeight = 50,
+    this.maxHeight = 200,
   }) : super(key: key);
 
   @override

@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:taskmanagement/components/Login/login_screen.dart';
 
 
 class AuthService {
   static Future<void> logout(BuildContext context) async {
-    // SharedPreferences prefs = await SharedPreferences.getInstance();
-    // await prefs.remove('token');
-
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('user_Id');
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => LoginScreen()),

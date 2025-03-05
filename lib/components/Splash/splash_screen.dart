@@ -25,7 +25,6 @@ class SplashScreenState extends State<SplashScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-
               Image.asset(
                 'images/Logo.png',
                 width: 135,

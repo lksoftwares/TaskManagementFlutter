@@ -150,6 +150,8 @@ class _UsersPageState extends State<UsersPage> {
           child: Text(userId == null ? 'Add' : 'Update',style: TextStyle(color: Colors.white),),
         ),
       ],
+      titleHeight: 65,
+
     );
   }
   void _confirmDeleteRole(int userId) {
@@ -173,6 +175,8 @@ class _UsersPageState extends State<UsersPage> {
           child: Text('Delete',style: TextStyle(color: Colors.white),),
         ),
       ],
+      titleHeight: 65,
+
     );
   }
 

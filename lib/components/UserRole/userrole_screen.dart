@@ -220,6 +220,8 @@ class _UserroleScreenState extends State<UserroleScreen> {
           child: Text('Add', style: TextStyle(color: Colors.white)),
         ),
       ],
+      titleHeight: 65,
+
     );
   }
 
@@ -289,6 +291,7 @@ class _UserroleScreenState extends State<UserroleScreen> {
           child: Text('Delete',style: TextStyle(color: Colors.white),),
         ),
       ],
+
       titleFontSize: 27.0,
       additionalTitleContent: Padding(
         padding: const EdgeInsets.only(top: 1.0),

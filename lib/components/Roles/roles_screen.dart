@@ -517,6 +517,7 @@ class _RolesPageState extends State<RolesPage> {
           child: Text('Add',style: TextStyle(color: Colors.white),),
         ),
       ],
+      titleHeight: 65,
     );
   }
 
@@ -541,7 +542,10 @@ class _RolesPageState extends State<RolesPage> {
           child: Text('Delete',style: TextStyle(color: Colors.white),),
         ),
       ],
+      titleHeight: 65,
+
     );
+
   }
 
   Future<void> _deleteRole(int roleId) async {
@@ -621,6 +625,7 @@ class _RolesPageState extends State<RolesPage> {
           child: Text('Update',style: TextStyle(color: Colors.white),),
         ),
       ],
+      titleHeight: 65,
     );
   }
   @override
