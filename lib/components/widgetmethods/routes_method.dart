@@ -6,8 +6,10 @@ import 'package:taskmanagement/components/Splash/splash_screen.dart';
 import 'package:taskmanagement/components/Team/team_members_screen.dart';
 import 'package:taskmanagement/components/Team/team_screen.dart';
 import 'package:taskmanagement/components/UserRole/userrole_screen.dart';
+import 'package:taskmanagement/components/Users/userlogs_page.dart';
 import 'package:taskmanagement/components/Users/users_page.dart';
 import 'package:taskmanagement/components/WorkingStatus/daily_working_status.dart';
+import 'package:taskmanagement/components/WorkingStatus/workingdaysList.dart';
 
 class AppRoutes {
   static Map<String, WidgetBuilder> getRoutes() {
@@ -21,6 +23,9 @@ class AppRoutes {
       '/team': (context) => TeamScreen(),
       '/teammember': (context) => TeamMembersScreen(),
       '/project': (context) => ProjectsScreen(),
+      '/userlogs': (context) => UserlogsPage(),
+      '/workingdays': (context) => Workingdayslist(),
+
 
     };
   }

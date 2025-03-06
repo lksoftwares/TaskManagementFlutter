@@ -61,7 +61,7 @@ class _TeamScreenState extends State<TeamScreen> {
   Future<void> _addTeam(String teamName, String tmDescription) async {
     final response = await new ApiService().request(
       method: 'post',
-      endpoint: 'teams/AddEditTeam',
+      endpoint: 'teams/AddTeam',
       body: {
         'teamName': teamName,
         'tmDescription': tmDescription,
@@ -186,7 +186,7 @@ class _TeamScreenState extends State<TeamScreen> {
   Future<void> _updateTeam(int teamId, String teamName,String tmDescription) async {
     final response = await new ApiService().request(
       method: 'post',
-      endpoint: 'teams/AddEditTeam',
+      endpoint: 'teams/EditTeam',
       body: {
         'teamId': teamId,
         'teamName': teamName,

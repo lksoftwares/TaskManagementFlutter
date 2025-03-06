@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import '../widgetmethods/alert_widget.dart';
 import '../widgetmethods/api_method.dart';
@@ -23,9 +22,7 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
   int? selectedUserId;
   int? selectedRoleId;
   int? selectedTeamId;
-
   bool isLoading = false;
-
 
   @override
   void initState() {
@@ -95,11 +92,10 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
       setState(() {
         teams = List<Map<String, dynamic>>.from(
           response['apiResponse'].map((role) => {
-            'tmId': role['tmId'] ?? 0,
+            'tmemberId': role['tmemberId'] ?? 0,
             'userId': role['userId'] ?? 0,
             'roleId': role['roleId'] ?? 0,
             'teamId': role['teamId'] ?? 0,
-
             'teamName': role['teamName'] ?? 'Unknown team',
             'createdAt': role['createdAt'] ?? '',
             'roleName': role['roleName'] ?? 'Unknown role',
@@ -118,7 +114,7 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
   Future<void> _addTeamMembers( int userId, int roleId, int teamId) async {
     final response = await new ApiService().request(
       method: 'post',
-      endpoint: 'teams/AddEditTeamMember',
+      endpoint: 'teams/AddTeamMember',
       body: {
 
         'userId': userId,
@@ -222,7 +218,7 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
     );
   }
 
-  void _confirmDeleteTeamMember(int tmId) {
+  void _confirmDeleteTeamMember(int tmemberId) {
     showCustomAlertDialog(
       context,
       title: 'Delete Team Member',
@@ -237,7 +233,7 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
             backgroundColor: Colors.red,
           ),
           onPressed: () {
-            _deleteTeamMember(tmId);
+            _deleteTeamMember(tmemberId);
             Navigator.pop(context);
           },
           child: Text('Delete',style: TextStyle(color: Colors.white),),
@@ -248,11 +244,10 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
     );
   }
 
-  Future<void> _deleteTeamMember(int tmId) async {
-
+  Future<void> _deleteTeamMember(int tmemberId) async {
     final response = await new ApiService().request(
       method: 'delete',
-      endpoint: 'teams/deleteTeamMember/$tmId',
+      endpoint: 'teams/deleteTeamMember/$tmemberId',
     );
     if (response['statusCode'] == 200) {
       String message = response['message'] ?? 'Team Member deleted successfully';
@@ -265,12 +260,12 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
   }
 
 
-  Future<void> _updateUserRole(int tmId, int userId, int roleId, int teamId) async {
+  Future<void> _updateUserRole(int tmemberId, int userId, int roleId, int teamId) async {
     final response = await ApiService().request(
       method: 'post',
-      endpoint: 'teams/AddEditTeamMember',
+      endpoint: 'teams/EditTeamMember',
       body: {
-        'tmId': tmId,
+        'tmemberId': tmemberId,
         'userId': userId,
         'roleId': roleId,
         'teamId': teamId,
@@ -287,10 +282,8 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
     }
   }
 
-  Future<void> _showEditTeammemberModal(int tmId) async {
-
-
-    final currentMember = teams.firstWhere((member) => member['tmId'] == tmId);
+  Future<void> _showEditTeammemberModal(int tmemberId) async {
+    final currentMember = teams.firstWhere((member) => member['tmemberId'] == tmemberId);
 
     selectedUserId = currentMember['userId'];
     selectedRoleId = currentMember['roleId'];
@@ -325,8 +318,6 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
                 },
               ),
               SizedBox(height: 10),
-
-              // Role dropdown
               DropdownButtonFormField<int>(
                 value: selectedRoleId,
                 decoration: InputDecoration(labelText: 'Select Role', border: OutlineInputBorder()),
@@ -343,7 +334,6 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
                 },
               ),
               SizedBox(height: 10),
-
               DropdownButtonFormField<int>(
                 value: selectedTeamId,
                 decoration: InputDecoration(labelText: 'Select Team', border: OutlineInputBorder()),
@@ -375,7 +365,7 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
               showToast(msg: 'Please select all fields');
               return;
             }
-            _updateUserRole(tmId, selectedUserId!, selectedRoleId!, selectedTeamId!);
+            _updateUserRole(tmemberId, selectedUserId!, selectedRoleId!, selectedTeamId!);
           },
           child: Text('Update', style: TextStyle(color: Colors.white)),
         ),
@@ -384,7 +374,6 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
 
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -410,7 +399,6 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
                     ),
                   ],
                 ),
-
                 SizedBox(height: 20),
                 if (isLoading)
                   Center(child: CircularProgressIndicator())
@@ -421,30 +409,28 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
                     children: teams.map((role) {
                       Map<String, dynamic> roleFields = {
                         'TeamName': role['teamName'],
+                        '': role[''],
                         'Username:': role['userName'],
                         'Rolename': role['roleName'],
                         'CreatedAt': role['createdAt'],
                       };
-
                       return buildUserCard(
                         userFields: roleFields,
-                        onEdit: () => _showEditTeammemberModal(role['tmId']),
-                        onDelete: () => _confirmDeleteTeamMember(role['tmId']),
+                        onEdit: () => _showEditTeammemberModal(role['tmemberId']),
+                        onDelete: () => _confirmDeleteTeamMember(role['tmemberId']),
                         trailingIcon:
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            IconButton(onPressed: ()=>_showEditTeammemberModal(role['tmId']),
+                            IconButton(onPressed: ()=>_showEditTeammemberModal(role['tmemberId']),
                                 icon: Icon(Icons.edit,color: Colors.green,)),
-                            IconButton(onPressed: ()=>_confirmDeleteTeamMember(role['tmId']),
+                            IconButton(onPressed: ()=>_confirmDeleteTeamMember(role['tmemberId']),
                                 icon: Icon(Icons.delete,color: Colors.red,)),
-
                           ],
                         ),
                       );
                     }).toList(),
                   )
-
               ],
             ),
           ),

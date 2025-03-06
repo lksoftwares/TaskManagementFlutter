@@ -464,7 +464,7 @@ class _RolesPageState extends State<RolesPage> {
   Future<void> _addRole(String roleName) async {
     final response = await new ApiService().request(
       method: 'post',
-      endpoint: 'Roles/AddEditRole',
+      endpoint: 'Roles/AddRole',
       body: {
         'roleName': roleName,
       },
@@ -567,7 +567,7 @@ class _RolesPageState extends State<RolesPage> {
   Future<void> _updateRole(int roleId, String roleName) async {
     final response = await new ApiService().request(
       method: 'post',
-      endpoint: 'Roles/AddEditRole',
+      endpoint: 'Roles/EditRole',
       body: {
         'roleId': roleId,
         'roleName': roleName,

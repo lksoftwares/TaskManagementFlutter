@@ -60,7 +60,7 @@ class _UsersPageState extends State<UsersPage> {
   Future<void> _addUser(String userName, String userEmail, String userPassword) async {
     final response = await ApiService().request(
       method: 'post',
-      endpoint: 'User/AddEditUser',
+      endpoint: 'User/AddUser',
       body: {
         'userName': userName,
         'userEmail': userEmail,
@@ -84,7 +84,7 @@ class _UsersPageState extends State<UsersPage> {
   Future<void> _updateUser(int userId, String userName, String userEmail, String userPassword) async {
     final response = await ApiService().request(
       method: 'post',
-      endpoint: 'User/AddEditUser',
+      endpoint: 'User/EditUser',
       body: {
         'userId': userId,
         'userName': userName,

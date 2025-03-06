@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:device_info_plus/device_info_plus.dart';
-import 'package:taskmanagement/components/WorkingStatus/daily_working_status.dart';
+import 'package:taskmanagement/components/Splash/splash_screen.dart';
+import 'package:taskmanagement/components/widgetmethods/routes_method.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -12,33 +12,51 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _checkDeveloperOptions(context);
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const DailyWorkingStatus(),
+      title: 'Flutter Demo',
+      initialRoute: '/',
+      routes: AppRoutes.getRoutes(),
+      onGenerateRoute: (settings) {
+        return MaterialPageRoute(builder: (context) => SplashScreen());
+      },
     );
   }
 
-  Future<void> _checkDeveloperOptions(BuildContext context) async {
-    bool isDeveloperOptionsEnabled = await _isDeveloperOptionsEnabled();
-
-    if (isDeveloperOptionsEnabled) {
-      Fluttertoast.showToast(
-        msg: "Developer Options is ON!",
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-      );
-    }
-  }
-
-  Future<bool> _isDeveloperOptionsEnabled() async {
-    final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    final AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-
-    return androidInfo.isPhysicalDevice && androidInfo.version.sdkInt >= 30;
-  }
 }
+
+
+// import 'package:flutter/material.dart';
+// import 'package:taskmanagement/components/Splash/splash_screen.dart';
+// import 'package:taskmanagement/components/widgetmethods/developer_method.dart';
+// import 'package:taskmanagement/components/widgetmethods/routes_method.dart';
+//
+// void main() {
+//   WidgetsFlutterBinding.ensureInitialized();
+//   runApp(const MyApp());
+// }
+//
+// class MyApp extends StatelessWidget {
+//   const MyApp({super.key});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     _checkDeveloperOptions(context);
+//     return MaterialApp(
+//       debugShowCheckedModeBanner: false,
+//       title: 'Flutter Demo',
+//       initialRoute: '/',
+//       routes: AppRoutes.getRoutes(),
+//       onGenerateRoute: (settings) {
+//         return MaterialPageRoute(builder: (context) => SplashScreen());
+//       },
+//     );
+//   }
+//   Future<void> _checkDeveloperOptions(BuildContext context) async {
+//     await DeveloperOptions.checkDeveloperOptions();
+//   }
+// }
+
 
 // import 'package:flutter/material.dart';
 // import 'package:taskmanagement/components/Splash/splash_screen.dart';

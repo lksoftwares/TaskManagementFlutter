@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ import 'package:taskmanagement/components/widgetmethods/toast_method.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:taskmanagement/config.dart';
+
 class DailyWorkingStatus extends StatefulWidget {
   const DailyWorkingStatus({super.key});
 
@@ -24,36 +26,42 @@ class DailyWorkingStatus extends StatefulWidget {
 
 class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
   FlutterSoundRecorder? _recorder;
+  FlutterSoundPlayer? _player;
   bool isRecording = false;
   String? audioFilePath;
-  List<Map<String, dynamic>> roles = [];
-  List<Map<String, dynamic>> users = [];
-  String? token;
+  bool isPlaying = false;
   String? selectedUserId;
+  Map<String, bool> isPlayingMap = {};
   bool isLoading = false;
   DateTime? fromDate;
   DateTime? toDate;
   String? selectedUserName;
   Map<String, dynamic>? selectedUser;
-
+  List<Map<String, dynamic>> roles = [];
+  List<Map<String, dynamic>> users = [];
+  double currentPosition = 0.0;
+  Timer? positionTimer;
   @override
   void initState() {
     super.initState();
     _initializeRecorder();
+    _initializePlayer();
     _getData();
   }
+
 
   Future<void> _initializeRecorder() async {
     _recorder = FlutterSoundRecorder();
     await _recorder!.openRecorder();
   }
-
+  Future<void> _initializePlayer() async {
+    _player = FlutterSoundPlayer();
+    await _player!.openPlayer();
+  }
   Future<void> _getData() async {
     await fetchWorking();
     await fetchUsers();
   }
-
-
 
   Future<void> _startRecording() async {
     PermissionStatus status = await Permission.microphone.request();
@@ -162,7 +170,6 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
   }
 
 
-
   void _showAddWorkingModal() {
     String workingDesc = '';
     InputDecoration inputDecoration = InputDecoration(
@@ -230,11 +237,13 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
             backgroundColor: Colors.green,
           ),
           onPressed: () {
-            if (workingDesc.isEmpty) {
+            if (isRecording) {
+              showToast(msg: 'Please stop the recording first.', backgroundColor: Colors.red);
+            } else if (workingDesc.isEmpty) {
               showToast(msg: 'Please fill in the Working desc');
             } else if (selectedUserId == null) {
               showToast(msg: 'Please select a user');
-            } else {
+            }else {
               _addWorking(workingDesc, selectedUserId!);
             }
           },
@@ -247,6 +256,7 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
       titleHeight: 65,
     );
   }
+
   Future<void> _addWorking(String workingDesc, String userId) async {
     final uri = Uri.parse('${Config.apiUrl}Working/AddWorking');
 
@@ -475,6 +485,33 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
     }).toList();
   }
 
+  Future<void> _playAudio(String url) async {
+    try {
+      setState(() {
+        isPlayingMap[url] = true;
+      });
+      await _player!.startPlayer(
+        fromURI: url,
+        whenFinished: () {
+          setState(() {
+            isPlayingMap[url] = false;
+          });
+        },
+      );
+    } catch (e) {
+      print("Error playing audio: $e");
+      showToast(msg: 'Error playing audio');
+    }
+  }
+
+  Future<void> _stopAudio(String url) async {
+    await _player!.stopPlayer();
+    setState(() {
+      isPlayingMap[url] = false;
+    });
+    positionTimer?.cancel();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -584,6 +621,7 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
                           Color iconColor = hasWorkingNote
                               ? Colors.red[900]!
                               : Colors.red[100]!;
+                          bool hasAudioFile = role['workingDescFilePath'] != null && role['workingDescFilePath'] != '';
                           return buildUserCard(
                             userFields: {
                               'Username': role['userName'],
@@ -598,15 +636,37 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
                             onView: () =>
                                 _showFullDescription(role['workingDesc'], role['workingDate'],
                                     role['userName'],context),
-                            trailingIcon: IconButton(
-                              onPressed: () =>
-                                  _confirmDeleteRole(role['txnId']),
-                              icon: Icon(
-                                Icons.delete,
-                                color: Colors.red,
+                              trailingIcon: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (hasAudioFile)
+                                    IconButton(
+                                      icon: Icon(
+                                        isPlayingMap[role['workingDescFilePath']] == true
+                                            ? Icons.pause
+                                            : Icons.play_arrow,
+                                        color: isPlayingMap[role['workingDescFilePath']] == true
+                                            ? Colors.red
+                                            : Colors.green,
+                                      ),
+                                      onPressed: () {
+                                        if (isPlayingMap[role['workingDescFilePath']] == true) {
+                                          _stopAudio(role['workingDescFilePath']);
+                                        } else {
+                                          _playAudio(role['workingDescFilePath']);
+                                        }
+                                      },
+                                    ),
+                                  IconButton(
+                                    onPressed: () => _confirmDeleteRole(role['txnId']),
+                                    icon: Icon(
+                                      Icons.delete,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                            leadingIcon: IconButton(
+                              leadingIcon: IconButton(
                               onPressed: () {
                                 if (hasWorkingNote) {
                                   _showWorkingNoteDialog(

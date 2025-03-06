@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
-class DeveloperOptionsUtils {
-  static Future<void> checkDeveloperOptions(BuildContext context) async {
+class DeveloperOptions {
+  static Future<void> checkDeveloperOptions() async {
     bool isDeveloperOptionsEnabled = await _isDeveloperOptionsEnabled();
 
     if (isDeveloperOptionsEnabled) {
@@ -19,6 +18,6 @@ class DeveloperOptionsUtils {
     final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     final AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
 
-    return androidInfo.isPhysicalDevice && androidInfo.version.sdkInt >= 30;  // Example, adjust logic for your needs
+    return androidInfo.isPhysicalDevice && androidInfo.version.sdkInt >= 30;
   }
 }
