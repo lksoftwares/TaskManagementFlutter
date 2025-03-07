@@ -131,7 +131,6 @@ class _UsersPageState extends State<UsersPage> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: Text('Cancel')),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.green,
@@ -149,6 +148,8 @@ class _UsersPageState extends State<UsersPage> {
           },
           child: Text(userId == null ? 'Add' : 'Update',style: TextStyle(color: Colors.white),),
         ),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text('Cancel')),
+
       ],
       titleHeight: 65,
 
@@ -160,10 +161,7 @@ class _UsersPageState extends State<UsersPage> {
       title: 'Delete User',
       content: Text('Are you sure you want to delete this user?'),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Cancel'),
-        ),
+
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red,
@@ -173,6 +171,10 @@ class _UsersPageState extends State<UsersPage> {
             Navigator.pop(context);
           },
           child: Text('Delete',style: TextStyle(color: Colors.white),),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Cancel'),
         ),
       ],
       titleHeight: 65,

@@ -499,10 +499,7 @@ class _RolesPageState extends State<RolesPage> {
         decoration: inputDecoration,
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Cancel'),
-        ),
+
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.green,
@@ -516,6 +513,10 @@ class _RolesPageState extends State<RolesPage> {
           },
           child: Text('Add',style: TextStyle(color: Colors.white),),
         ),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Cancel'),
+        ),
       ],
       titleHeight: 65,
     );
@@ -527,10 +528,7 @@ class _RolesPageState extends State<RolesPage> {
       title: 'Delete Role',
       content: Text('Are you sure you want to delete this role?'),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Cancel'),
-        ),
+
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red,
@@ -540,6 +538,10 @@ class _RolesPageState extends State<RolesPage> {
             Navigator.pop(context);
           },
           child: Text('Delete',style: TextStyle(color: Colors.white),),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Cancel'),
         ),
       ],
       titleHeight: 65,
@@ -607,10 +609,7 @@ class _RolesPageState extends State<RolesPage> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Cancel'),
-        ),
+
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.green,
@@ -623,6 +622,10 @@ class _RolesPageState extends State<RolesPage> {
             }
           },
           child: Text('Update',style: TextStyle(color: Colors.white),),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Cancel'),
         ),
       ],
       titleHeight: 65,

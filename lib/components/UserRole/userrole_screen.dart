@@ -207,7 +207,6 @@ class _UserroleScreenState extends State<UserroleScreen> {
         },
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: Text('Cancel')),
         ElevatedButton(
           style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
           onPressed: () {
@@ -219,6 +218,8 @@ class _UserroleScreenState extends State<UserroleScreen> {
           },
           child: Text('Add', style: TextStyle(color: Colors.white)),
         ),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text('Cancel')),
+
       ],
       titleHeight: 65,
 
@@ -265,10 +266,7 @@ class _UserroleScreenState extends State<UserroleScreen> {
         ],
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Cancel'),
-        ),
+
         ElevatedButton(
 
           style: ElevatedButton.styleFrom(
@@ -289,6 +287,10 @@ class _UserroleScreenState extends State<UserroleScreen> {
             }
           },
           child: Text('Delete',style: TextStyle(color: Colors.white),),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Cancel'),
         ),
       ],
 

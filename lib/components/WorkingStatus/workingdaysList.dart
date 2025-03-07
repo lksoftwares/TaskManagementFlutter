@@ -35,7 +35,7 @@ class _WorkingdayslistState extends State<Workingdayslist> {
     if (userId != null) {
       final response = await new ApiService().request(
         method: 'get',
-        endpoint: 'Working/GetWorking?userId=$userId',
+        endpoint: 'Working/GetWorking',
       );
       print('Response: $response');
 

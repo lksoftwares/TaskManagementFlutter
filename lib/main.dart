@@ -24,6 +24,62 @@ class MyApp extends StatelessWidget {
   }
 
 }
+// import 'package:flutter/material.dart';
+// import 'package:avatar_glow/avatar_glow.dart';
+//
+// void main() {
+//   runApp(MyApp());
+// }
+//
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       home: Scaffold(
+//         body: Center(
+//           child: GlowRecordingWidget(),
+//         ),
+//       ),
+//     );
+//   }
+// }
+//
+// class GlowRecordingWidget extends StatefulWidget {
+//   @override
+//   _GlowRecordingWidgetState createState() => _GlowRecordingWidgetState();
+// }
+//
+// class _GlowRecordingWidgetState extends State<GlowRecordingWidget> {
+//   bool isRecording = false;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return GestureDetector(
+//       onTap: () {
+//         setState(() {
+//           isRecording = !isRecording;
+//         });
+//       },
+//       child: isRecording
+//           ? AvatarGlow(
+//         glowColor: Colors.red,
+//         duration: Duration(milliseconds: 2000),
+//         repeat: true,
+//         startDelay: Duration(milliseconds: 1000),
+//         child: Icon(
+//           Icons.mic,
+//           color: Colors.black,
+//           size: 40,
+//         ),
+//       )
+//           : Icon(
+//         Icons.mic,
+//         color: Colors.red,
+//         size: 40,
+//       ),
+//     );
+//   }
+// }
 
 
 // import 'package:flutter/material.dart';

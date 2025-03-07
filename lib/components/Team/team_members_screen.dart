@@ -157,6 +157,18 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               DropdownButtonFormField<int>(
+                decoration: InputDecoration(labelText: 'Select team', border: OutlineInputBorder()),
+                items: teamsList.map((role) {
+                  return DropdownMenuItem<int>(
+                    value: role['teamId'],
+                    child: Text(role['teamName']),
+                  );
+                }).toList(),
+                onChanged: (value) => selectedTeamId = value,
+              ),
+              SizedBox(height: 10),
+
+              DropdownButtonFormField<int>(
                 decoration: InputDecoration(labelText: 'Select User', border: OutlineInputBorder()),
                 items: usersList.map((user) {
                   return DropdownMenuItem<int>(
@@ -184,23 +196,12 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
                 }).toList(),
                 onChanged: (value) => selectedRoleId = value,
               ),
-              SizedBox(height: 10),
-              DropdownButtonFormField<int>(
-                decoration: InputDecoration(labelText: 'Select team', border: OutlineInputBorder()),
-                items: teamsList.map((role) {
-                  return DropdownMenuItem<int>(
-                    value: role['teamId'],
-                    child: Text(role['teamName']),
-                  );
-                }).toList(),
-                onChanged: (value) => selectedTeamId = value,
-              ),
+
             ],
           );
         },
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: Text('Cancel')),
         ElevatedButton(
           style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
           onPressed: () {
@@ -212,6 +213,8 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
           },
           child: Text('Add', style: TextStyle(color: Colors.white)),
         ),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text('Cancel')),
+
       ],
       titleHeight: 65,
 
@@ -224,10 +227,7 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
       title: 'Delete Team Member',
       content: Text('Are you sure you want to delete this team Member?'),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Cancel'),
-        ),
+
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red,
@@ -237,6 +237,10 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
             Navigator.pop(context);
           },
           child: Text('Delete',style: TextStyle(color: Colors.white),),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Cancel'),
         ),
       ],
       titleHeight: 65,
@@ -354,10 +358,7 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
         },
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Cancel'),
-        ),
+
         ElevatedButton(
           style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
           onPressed: () {
@@ -368,6 +369,10 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
             _updateUserRole(tmemberId, selectedUserId!, selectedRoleId!, selectedTeamId!);
           },
           child: Text('Update', style: TextStyle(color: Colors.white)),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Cancel'),
         ),
       ],
       titleHeight: 65,

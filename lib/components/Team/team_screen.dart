@@ -1,6 +1,5 @@
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../widgetmethods/alert_widget.dart';
 import '../widgetmethods/api_method.dart';
 import '../widgetmethods/appbar_method.dart';
@@ -18,7 +17,7 @@ class TeamScreen extends StatefulWidget {
 
 class _TeamScreenState extends State<TeamScreen> {
   List<Map<String, dynamic>> teams = [];
-
+  List<Map<String, dynamic>> teamMembers = [];
   bool isLoading = false;
 
 
@@ -26,6 +25,76 @@ class _TeamScreenState extends State<TeamScreen> {
   void initState() {
     super.initState();
     fetchTeams();
+
+  }
+  Future<void> fetchTeamMembers(int teamId) async {
+
+
+    final response = await new ApiService().request(
+      method: 'get',
+      endpoint: 'teams/GetAllTeamMember?teamId=$teamId',
+    );
+
+    if (response['statusCode'] == 200 && response['apiResponse'] != null) {
+      setState(() {
+        teamMembers = List<Map<String, dynamic>>.from(
+          response['apiResponse'].map((member) => {
+            'tmemberId': member['tmemberId'] ?? 0,
+            'userId': member['userId'] ?? 0,
+            'roleId': member['roleId'] ?? 0,
+            'teamId': member['teamId'] ?? 0,
+            'teamName': member['teamName'] ?? 'Unknown team',
+            'createdAt': member['createdAt'] ?? '',
+            'roleName': member['roleName'] ?? 'Unknown role',
+            'userName': member['userName'] ?? 'Unknown user',
+          }),
+        );
+      });
+    } else {
+      showToast(msg: response['message'] ?? 'Failed to load team members');
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  void _showTeamMembersModal(int teamId) {
+    setState(() {
+      teamMembers.clear();
+    });
+
+    fetchTeamMembers(teamId).then((_) {
+      showCustomAlertDialog(
+        context,
+        title: 'Team Members',
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isLoading)
+              Center(child: CircularProgressIndicator())
+            else if (teamMembers.isEmpty)
+              Text('No members found')
+            else
+              Column(
+                children: teamMembers.map((member) {
+                  return ListTile(
+                    title: Text(member['userName']),
+                    subtitle: Text('Role: ${member['roleName']}'),
+                  );
+                }).toList(),
+              ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Close'),
+          ),
+        ],
+        titleHeight: 70
+      );
+    });
   }
 
 
@@ -114,10 +183,7 @@ class _TeamScreenState extends State<TeamScreen> {
         ],
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Cancel'),
-        ),
+
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.green,
@@ -134,6 +200,10 @@ class _TeamScreenState extends State<TeamScreen> {
             style: TextStyle(color: Colors.white),
           ),
         ),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Cancel'),
+        ),
       ],
       titleHeight: 65,
 
@@ -147,10 +217,7 @@ class _TeamScreenState extends State<TeamScreen> {
       title: 'Delete Team',
       content: Text('Are you sure you want to delete this team?'),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Cancel'),
-        ),
+
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red,
@@ -160,6 +227,10 @@ class _TeamScreenState extends State<TeamScreen> {
             Navigator.pop(context);
           },
           child: Text('Delete',style: TextStyle(color: Colors.white),),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Cancel'),
         ),
       ],
       titleHeight: 65,
@@ -240,10 +311,7 @@ class _TeamScreenState extends State<TeamScreen> {
         ],
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Cancel'),
-        ),
+
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.green,
@@ -256,6 +324,10 @@ class _TeamScreenState extends State<TeamScreen> {
             }
           },
           child: Text('Update', style: TextStyle(color: Colors.white)),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Cancel'),
         ),
       ],
       titleHeight: 65,
@@ -287,7 +359,6 @@ class _TeamScreenState extends State<TeamScreen> {
                     ),
                   ],
                 ),
-
                 SizedBox(height: 20),
                 if (isLoading)
                   Center(child: CircularProgressIndicator())
@@ -302,7 +373,6 @@ class _TeamScreenState extends State<TeamScreen> {
                         'Description': role['tmDescription'],
                         'CreatedAt': role['createdAt'],
                       };
-
                       return buildUserCard(
                         userFields: roleFields,
                         onEdit: () => _showEditTeamModal(role['teamId'], role['teamName'],role['tmDescription']),
@@ -315,7 +385,12 @@ class _TeamScreenState extends State<TeamScreen> {
                                 icon: Icon(Icons.edit,color: Colors.green,)),
                             IconButton(onPressed: ()=>_confirmDeleteTeam(role['teamId']),
                                 icon: Icon(Icons.delete,color: Colors.red,)),
-
+                            IconButton(
+                                onPressed: () => _showTeamMembersModal(role['teamId']),
+                                icon: Icon(
+                                  Icons.visibility,
+                                  color: Colors.blue,
+                                )),
                           ],
                         ),
                       );

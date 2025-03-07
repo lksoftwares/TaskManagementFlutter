@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:taskmanagement/avatar.dart';
 import 'package:taskmanagement/components/widgetmethods/alert_widget.dart';
 import 'package:taskmanagement/components/widgetmethods/api_method.dart';
 import 'package:taskmanagement/components/widgetmethods/appbar_method.dart';
@@ -41,6 +44,8 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
   List<Map<String, dynamic>> users = [];
   double currentPosition = 0.0;
   Timer? positionTimer;
+  bool isListening = false;
+
   @override
   void initState() {
     super.initState();
@@ -49,7 +54,10 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
     _getData();
   }
 
-
+  Future<int?> getUserIdFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getInt('user_Id');
+  }
   Future<void> _initializeRecorder() async {
     _recorder = FlutterSoundRecorder();
     await _recorder!.openRecorder();
@@ -60,7 +68,6 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
   }
   Future<void> _getData() async {
     await fetchWorking();
-    await fetchUsers();
   }
 
   Future<void> _startRecording() async {
@@ -97,19 +104,6 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
     return path;
   }
 
-  Future<void> fetchUsers() async {
-    final response = await new ApiService().request(
-      method: 'get',
-      endpoint: 'User/GetAllUsers',
-    );
-    if (response['statusCode'] == 200 && response['apiResponse'] != null) {
-      setState(() {
-        users = List<Map<String, dynamic>>.from(response['apiResponse']);
-      });
-    } else {
-      showToast(msg: 'Failed to load users');
-    }
-  }
 
   Future<void> fetchWorking() async {
     setState(() {
@@ -168,70 +162,70 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
       return DateTime(2000);
     }
   }
-
-
-  void _showAddWorkingModal() {
+  Future<void> _showAddWorkingModal() async {
     String workingDesc = '';
     InputDecoration inputDecoration = InputDecoration(
       labelText: 'Working Desc',
       border: OutlineInputBorder(),
     );
-    fetchUsers();
+
+    int? userId = await getUserIdFromPrefs();
+
+    if (userId == null) {
+      showToast(msg: 'User ID not found in preferences.');
+      return;
+    }
+
+    setState(() {
+      audioFilePath = null;
+      isRecording = false;
+      isPlayingMap.clear();
+    });
 
     showCustomAlertDialog(
       context,
       title: 'Add Working Desc',
-      content: Container(
-        height: 200,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              onChanged: (value) => workingDesc = value,
-              decoration: inputDecoration,
+      content: StatefulBuilder(
+        builder: (context, setState) {
+          return Container(
+            height: 200,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  onChanged: (value) => workingDesc = value,
+                  decoration: inputDecoration,
+                ),
+                SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: Center(
+                    child:GestureDetector(
+                      onTap: () {
+                        if (isRecording) {
+                          _stopRecording();
+                        } else {
+                          _startRecording();
+                        }
+                        setState(() {});
+                      },
+                      child: isRecording
+                          ?   Icon(Icons.mic, color: Colors.red, size: 40) :
+                        AvatarGlow(
+                          glowColor: Colors.green,
+                          duration: Duration(milliseconds: 2000),
+                          child: Avatar(),
+                        )
+                    )
+
+                  ),
+                ),
+              ],
             ),
-            SizedBox(height: 10),
-            DropdownButtonFormField<String>(
-              value: selectedUserId,
-              onChanged: (String? newValue) {
-                setState(() {
-                  selectedUserId = newValue;
-                });
-              },
-              decoration: InputDecoration(
-                labelText: 'Select User',
-                border: OutlineInputBorder(),
-              ),
-              items: users.map<DropdownMenuItem<String>>((user) {
-                return DropdownMenuItem<String>(
-                  value: user['userId'].toString(),
-                  child: Text(user['userName'] ?? 'Unknown User'),
-                );
-              }).toList(),
-            ),
-            SizedBox(height: 10),
-            IconButton(
-              icon: Icon(
-                isRecording ? Icons.stop : Icons.mic,
-                color: isRecording ? Colors.red : Colors.blue,
-                size: 30,
-              ),
-              onPressed: () {
-                if (isRecording) {
-                  _stopRecording();
-                } else {
-                  _startRecording();
-                }
-              },
-            ),
-          ],
-        ),
+          );
+        },
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Cancel'),
-        ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.green,
@@ -239,12 +233,8 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
           onPressed: () {
             if (isRecording) {
               showToast(msg: 'Please stop the recording first.', backgroundColor: Colors.red);
-            } else if (workingDesc.isEmpty) {
-              showToast(msg: 'Please fill in the Working desc');
-            } else if (selectedUserId == null) {
-              showToast(msg: 'Please select a user');
-            }else {
-              _addWorking(workingDesc, selectedUserId!);
+            } else {
+              _addWorking(workingDesc, userId!);
             }
           },
           child: Text(
@@ -252,19 +242,31 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
             style: TextStyle(color: Colors.white),
           ),
         ),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Cancel'),
+        ),
       ],
       titleHeight: 65,
     );
   }
 
-  Future<void> _addWorking(String workingDesc, String userId) async {
+
+
+
+
+  Future<void> _addWorking(String workingDesc, int userId) async {
+    if (workingDesc.isEmpty) {
+      workingDesc = "Check audio";
+    }
+
     final uri = Uri.parse('${Config.apiUrl}Working/AddWorking');
 
     try {
       var request = http.MultipartRequest('POST', uri);
 
       request.fields['workingDesc'] = workingDesc;
-      request.fields['userId'] = selectedUserId!;
+      request.fields['userId'] = userId.toString();
       if (audioFilePath != null) {
         var file = await http.MultipartFile.fromPath(
           'workingAudioFile',
@@ -295,6 +297,7 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
   }
 
 
+
   void _showDatePicker() {
     showDateRangePicker(
       context: context,
@@ -319,10 +322,7 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
       title: 'Delete Working Desc',
       content: Text('Are you sure you want to delete this Description?'),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Cancel'),
-        ),
+
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red,
@@ -332,6 +332,10 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
             Navigator.pop(context);
           },
           child: Text('Delete',style: TextStyle(color: Colors.white),),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Cancel'),
         ),
       ],
       titleHeight: 65,

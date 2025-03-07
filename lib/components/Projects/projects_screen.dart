@@ -694,10 +694,6 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Cancel'),
-        ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
           onPressed: () {
@@ -708,6 +704,11 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
             _addProject(projectName, projectDescription, userId!, userId!,selectedTeamId!, startDate!, endDate!);
           },
           child: Text('Add', style: TextStyle(color: Colors.white)),
+        ),
+
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Cancel'),
         ),
       ],
       titleHeight: 65,
@@ -744,10 +745,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
       title: 'Delete Project',
       content: Text('Are you sure you want to delete this Project?'),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Cancel'),
-        ),
+
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red,
@@ -757,6 +755,11 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
             Navigator.pop(context);
           },
           child: Text('Delete',style: TextStyle(color: Colors.white),),
+        ),
+
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Cancel'),
         ),
       ],
       titleHeight: 65,
@@ -865,10 +868,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Cancel'),
-        ),
+
         ElevatedButton(
           style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
           onPressed: () {
@@ -893,6 +893,10 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
             );
           },
           child: Text('Update', style: TextStyle(color: Colors.white)),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Cancel'),
         ),
       ],
       titleHeight: 65,
