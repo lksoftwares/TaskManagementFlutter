@@ -12,13 +12,13 @@ class _AvatarState extends State<Avatar> {
   @override
   Widget build(BuildContext context) {
     return AvatarGlow(
-      glowColor: Colors.red,
+      glowColor: Colors.green,
       duration: Duration(milliseconds: 2000),
       repeat: true,
       startDelay: Duration(milliseconds: 1000),
       child: Icon(
         Icons.mic,
-        color: Colors.black,
+        color: Color(0xFF005296),
         size: 40,
       ),
     );

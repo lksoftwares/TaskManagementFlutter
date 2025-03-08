@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:taskmanagement/components/Login/login_screen.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -8,11 +8,21 @@ class SplashScreen extends StatefulWidget {
 }
 
 class SplashScreenState extends State<SplashScreen> {
+  String appVersion = '';
+
   @override
   void initState() {
     super.initState();
+    _getAppVersion();
     Timer(Duration(seconds: 5), () {
       Navigator.pushNamed(context, '/login');
+    });
+  }
+
+  Future<void> _getAppVersion() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    setState(() {
+      appVersion = packageInfo.version;
     });
   }
 
@@ -20,7 +30,7 @@ class SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        color: Color(0xFF0D47A1),
+        color: Color(0xFF005296),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -34,20 +44,29 @@ class SplashScreenState extends State<SplashScreen> {
               Text(
                 "Task Management",
                 style: TextStyle(
-                  fontSize:27,
+                  fontSize: 27,
                   fontWeight: FontWeight.w800,
                   color: Colors.white,
                 ),
               ),
               SizedBox(height: 5),
               Center(
-                child: Text("Real-time Maintenance, and Seamless reporting for Tasks",
+                child: Text(
+                  "Real-time Maintenance, and Seamless reporting for Tasks",
                   style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.white70
+                    fontSize: 11,
+                    color: Colors.white70,
                   ),
                 ),
-              )
+              ),
+              SizedBox(height: 20),
+              Text(
+                'Version: $appVersion',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.white70,
+                ),
+              ),
             ],
           ),
         ),

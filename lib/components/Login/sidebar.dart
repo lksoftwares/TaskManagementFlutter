@@ -1,113 +1,76 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:taskmanagement/components/widgetmethods/sidebar_method.dart';
 
-class NavBar extends StatelessWidget {
+class NavBar extends StatefulWidget {
+  @override
+  State<NavBar> createState() => _NavBarState();
+}
+
+class _NavBarState extends State<NavBar> {
+  String username = 'no user';
+  String role = 'No Role';
+  String userImage = ''; // Add variable to store user image URL or asset path
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  _loadUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      username = prefs.getString('user_Name') ?? 'no user';
+      role = prefs.getString('role_Name') ?? 'No Role';
+      userImage = prefs.getString('user_image') ?? ''; // Assuming you stored an image URL or path
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: Colors.blueAccent,
+      backgroundColor: Color(0xFF005296),
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          ListTile(
-            leading: Icon(Icons.people_alt_rounded, color: Colors.white),
-            title: Text(
-              'Roles',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          Padding(
+            padding: const EdgeInsets.only(top: 50.0),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Image.asset(
+                      'images/Logo.png',
+                      width: 70,
+                      height: 70,
+                    ),
+                    SizedBox(width: 10),
+                    Text(
+                      'Welcome, ${username}!(${role})',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            onTap: () {
-              Navigator.pushNamed(context, '/roles');
-            },
           ),
-
-          ListTile(
-            leading: Icon(Icons.people_alt_rounded, color: Colors.white),
-            title: Text(
-              'Roles',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          Container(
+            height: 800,
+            color: Colors.grey[200],
+            child: Column(
+              children: [
+                buildListTile(Icons.people_alt_rounded, 'Roles', '/roles', context),
+                buildListTile(Icons.person, 'Users', '/users', context),
+                buildListTile(Icons.supervised_user_circle_outlined, 'User Roles', '/userrole', context),
+                buildListTile(Icons.task, 'Working Status', '/status', context),
+                buildListTile(Icons.group, 'Team', '/team', context),
+                buildListTile(Icons.emoji_people, 'Team Members', '/teammember', context),
+                buildListTile(Icons.note_alt_outlined, 'Projects', '/project', context),
+                buildListTile(Icons.login_sharp, 'User Logs', '/userlogs', context),
+                buildListTile(Icons.calendar_month, 'Working Days', '/workingdays', context),
+              ],
             ),
-            onTap: () {
-              Navigator.pushNamed(context, '/roles');
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.person, color: Colors.white),
-            title: Text(
-              'Users',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-            onTap: () {
-              Navigator.pushNamed(context, '/users');
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.supervised_user_circle_outlined, color: Colors.white),
-            title: Text(
-              'User Roles',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-            onTap: () {
-              Navigator.pushNamed(context, '/userrole');
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.task, color: Colors.white),
-            title: Text(
-              'Working Status',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-            onTap: () {
-              Navigator.pushNamed(context, '/status');
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.group, color: Colors.white),
-            title: Text(
-              'Team',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-            onTap: () {
-              Navigator.pushNamed(context, '/team');
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.emoji_people, color: Colors.white),
-            title: Text(
-              'Team Members',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-            onTap: () {
-              Navigator.pushNamed(context, '/teammember');
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.note_alt_outlined, color: Colors.white),
-            title: Text(
-              'Projects',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-            onTap: () {
-              Navigator.pushNamed(context, '/project');
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.login_sharp, color: Colors.white),
-            title: Text(
-              'User Logs',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-            onTap: () {
-              Navigator.pushNamed(context, '/userlogs');
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.calendar_month, color: Colors.white),
-            title: Text(
-              'Working Days',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-            onTap: () {
-              Navigator.pushNamed(context, '/workingdays');
-            },
           ),
         ],
       ),

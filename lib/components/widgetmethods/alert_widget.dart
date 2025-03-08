@@ -35,7 +35,7 @@ Future<void> showCustomAlertDialog(
             Container(
               height: titleHeight,
               decoration: BoxDecoration(
-                color: Colors.blue,
+                color: Color(0xFF005296),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(20),
                   topRight: Radius.circular(20),
@@ -74,7 +74,7 @@ Future<void> showCustomAlertDialog(
                   size: 20,
                 ),
                 onPressed: () {
-                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context).pop();
                 },
               ),
             ),

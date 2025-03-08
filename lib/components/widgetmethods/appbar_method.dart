@@ -23,7 +23,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      statusBarColor: Colors.blueAccent,
+      statusBarColor: Color(0xFF005296),
       statusBarIconBrightness: Brightness.light,
     ));
 
@@ -42,7 +42,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             color: fontColor,
           ),
         ),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Color(0xFF005296),
         actions: [
           if (onLogout != null)
             IconButton(

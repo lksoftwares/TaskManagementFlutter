@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 Widget buildCardLayout({required Widget child}) {
@@ -29,11 +28,15 @@ Widget buildUserCard({
   Function? onEdit,
   Function? onDelete,
   Function? onView,
+  Function? onPlay,
   bool showEdit = false,
   bool showDelete = false,
   bool showView = false,
+  bool showplay = false,
+
   Widget? trailingIcon,
   Widget? leadingIcon,
+  Widget? additionalContent,
 }) {
   List<Widget> fieldRows = [];
   List<String> keys = userFields.keys.toList();
@@ -80,9 +83,10 @@ Widget buildUserCard({
 
       Widget displayValue;
       if (value is bool) {
-        displayValue = Icon(
-          value ? Icons.check_circle : Icons.cancel,
-          color: value ? Colors.green : Colors.red,
+        displayValue = Column(
+          children: [
+
+          ],
         );
       } else {
         displayValue = Text(
@@ -117,12 +121,19 @@ Widget buildUserCard({
                 flex: 4,
                 child: displayValue,
               ),
-              if (i == 2 && leadingIcon != null) ...[
-                Padding(
-                  padding: const EdgeInsets.only(right: 5.0),
-                  child: leadingIcon,
-                ),
+              if (i == 2) ...[
+                if (leadingIcon != null)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 5.0),
+                    child: leadingIcon,
+                  ),
+                if (showplay)
+                  IconButton(
+                    icon: const Icon(Icons.play_circle, color: Colors.green),
+                    onPressed: onPlay as void Function()?,
+                  ),
               ],
+
               if (i == 3) ...[
                 if (showEdit)
                   IconButton(
@@ -139,6 +150,7 @@ Widget buildUserCard({
                     icon: const Icon(Icons.zoom_in, color: Colors.blue),
                     onPressed: onView as void Function()?,
                   ),
+
               ]
             ],
           ),
@@ -177,6 +189,11 @@ Widget buildUserCard({
                 icon: const Icon(Icons.zoom_in, color: Colors.blue),
                 onPressed: onView as void Function()?,
               ),
+            if (showplay)
+              IconButton(
+                icon: const Icon(Icons.play_circle, color: Colors.green),
+                onPressed: onPlay as void Function()?,
+              ),
           ],
         ),
       ),
@@ -192,8 +209,9 @@ Widget buildUserCard({
           ...fieldRows,
           const Divider(
             thickness: 1,
-            color: Colors.grey,
+            color: Colors.black,
           ),
+          if (additionalContent != null) additionalContent,
           if (trailingIcon != null)
             Align(
               alignment: Alignment.bottomRight,

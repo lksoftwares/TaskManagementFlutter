@@ -13,6 +13,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(
+        appBarTheme: AppBarTheme(
+          iconTheme: IconThemeData(color: Colors.white), // 1
+        ),
+      ),
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       initialRoute: '/',
@@ -22,7 +27,6 @@ class MyApp extends StatelessWidget {
       },
     );
   }
-
 }
 // import 'package:flutter/material.dart';
 // import 'package:avatar_glow/avatar_glow.dart';

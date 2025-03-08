@@ -71,12 +71,12 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
   }
 
   Future<void> _startRecording() async {
+
     PermissionStatus status = await Permission.microphone.request();
     if (status.isGranted) {
       String path = await _getFilePath();
       await _recorder!.startRecorder(toFile: path);
       setState(() {
-        isRecording = true;
         audioFilePath = path;
       });
       showToast(msg: "Recording started!",backgroundColor: Colors.green);
@@ -89,10 +89,9 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
 
   Future<void> _stopRecording() async {
     await _recorder!.stopRecorder();
-    setState(() {
-      isRecording = false;
-    });
-
+setState(() {
+  isRecording=false;
+});
     showToast(msg: "Recording stopped!",backgroundColor: Colors.green);
     print("Recording stopped. File saved at: $audioFilePath");
   }
@@ -163,6 +162,7 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
     }
   }
   Future<void> _showAddWorkingModal() async {
+    print("isRecording$isRecording");
     String workingDesc = '';
     InputDecoration inputDecoration = InputDecoration(
       labelText: 'Working Desc',
@@ -170,7 +170,6 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
     );
 
     int? userId = await getUserIdFromPrefs();
-
     if (userId == null) {
       showToast(msg: 'User ID not found in preferences.');
       return;
@@ -188,13 +187,14 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
       content: StatefulBuilder(
         builder: (context, setState) {
           return Container(
-            height: 200,
+            height: 250,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextField(
                   onChanged: (value) => workingDesc = value,
                   decoration: inputDecoration,
+                  maxLines: 5,
                 ),
                 SizedBox(height: 10),
                 Padding(
@@ -204,20 +204,25 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
                       onTap: () {
                         if (isRecording) {
                           _stopRecording();
+                          setState((){
+                            isRecording=false;
+                          });
+                          _stopRecording();
                         } else {
+                          setState((){
+                            isRecording=true;
+                          });
                           _startRecording();
                         }
-                        setState(() {});
                       },
                       child: isRecording
-                          ?   Icon(Icons.mic, color: Colors.red, size: 40) :
-                        AvatarGlow(
-                          glowColor: Colors.green,
-                          duration: Duration(milliseconds: 2000),
-                          child: Avatar(),
-                        )
+                          ?   AvatarGlow(
+                        glowColor: Color(0xFF005296),
+                        duration: Duration(milliseconds: 2000),
+                        child: Avatar(),
+                      )  :
+                         Icon(Icons.mic, color: Color(0xFF005296), size: 40)
                     )
-
                   ),
                 ),
               ],
@@ -637,6 +642,7 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
                             },
                             onDelete: () => _confirmDeleteRole(role['txnId']),
                             showView: true,
+                            showplay: true,
                             onView: () =>
                                 _showFullDescription(role['workingDesc'], role['workingDate'],
                                     role['userName'],context),
@@ -647,8 +653,8 @@ class _DailyWorkingStatusState extends State<DailyWorkingStatus> {
                                     IconButton(
                                       icon: Icon(
                                         isPlayingMap[role['workingDescFilePath']] == true
-                                            ? Icons.pause
-                                            : Icons.play_arrow,
+                                            ? Icons.pause_circle
+                                            : Icons.play_circle,
                                         color: isPlayingMap[role['workingDescFilePath']] == true
                                             ? Colors.red
                                             : Colors.green,

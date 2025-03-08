@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:taskmanagement/components/widgetmethods/textstyle_method.dart';
 import '../widgetmethods/alert_widget.dart';
 import '../widgetmethods/api_method.dart';
 import '../widgetmethods/appbar_method.dart';
@@ -379,9 +380,23 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
 
     );
   }
+  Map<String, List<Map<String, dynamic>>> groupmembersByteam() {
+    Map<String, List<Map<String, dynamic>>> groupedteam = {};
 
+    for (var log in teams) {
+      String teamName = log['teamName'];
+      if (!groupedteam.containsKey(teamName)) {
+        groupedteam[teamName] = [];
+      }
+      groupedteam[teamName]!.add(log);
+    }
+
+    return groupedteam;
+  }
   @override
   Widget build(BuildContext context) {
+    Map<String, List<Map<String, dynamic>>> groupedteam = groupmembersByteam();
+
     return Scaffold(
       appBar: CustomAppBar(
         title: 'Team Members',
@@ -411,28 +426,82 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
                   NoDataFoundScreen()
                 else
                   Column(
-                    children: teams.map((role) {
+                    children: groupedteam.entries.map((entry) {
+                      String teamName = entry.key;
+                      List<Map<String, dynamic>> logs = entry.value;
                       Map<String, dynamic> roleFields = {
-                        'TeamName': role['teamName'],
-                        '': role[''],
-                        'Username:': role['userName'],
-                        'Rolename': role['roleName'],
-                        'CreatedAt': role['createdAt'],
+                        'Teamname': teamName,
+                        '': "",
                       };
                       return buildUserCard(
                         userFields: roleFields,
-                        onEdit: () => _showEditTeammemberModal(role['tmemberId']),
-                        onDelete: () => _confirmDeleteTeamMember(role['tmemberId']),
-                        trailingIcon:
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            IconButton(onPressed: ()=>_showEditTeammemberModal(role['tmemberId']),
-                                icon: Icon(Icons.edit,color: Colors.green,)),
-                            IconButton(onPressed: ()=>_confirmDeleteTeamMember(role['tmemberId']),
-                                icon: Icon(Icons.delete,color: Colors.red,)),
-                          ],
+                        additionalContent: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: logs.map((role) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(height: 20,),
+
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Username         : ',
+                                      style: AppTextStyle.boldTextStyle(),
+                                    ),
+                                    Text(
+                                      '${role['userName']}',
+                                      style: AppTextStyle.regularTextStyle(),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 7),
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Rolename         : ',
+                                      style: AppTextStyle.boldTextStyle(),
+                                    ),
+                                    Text(
+                                      '${role['roleName']}',
+                                      style: AppTextStyle.regularTextStyle(),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 7),
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Created At        : ',
+                                      style: AppTextStyle.boldTextStyle(),
+                                    ),
+                                    Text(
+                                      '${role['createdAt']}',
+                                      style: AppTextStyle.regularTextStyle(),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    IconButton(
+                                      icon: Icon(Icons.edit, color: Colors.green),
+                                      onPressed: () => _showEditTeammemberModal(role['tmemberId']),
+                                    ),
+                                    IconButton(
+                                      onPressed: ()=>_confirmDeleteTeamMember(role['tmemberId']),
+                                      icon: Icon(Icons.delete, color: Colors.red),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 5),
+                                Divider(color: Colors.grey,),
+                                SizedBox(height: 5),                              ],
+
+                            );
+                          }).toList(),
                         ),
+
                       );
                     }).toList(),
                   )
